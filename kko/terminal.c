@@ -90,6 +90,18 @@ int term_puts_till_space(char *str, int posSpace)
 }
 
 
+void term_readline(char *buf, unsigned int count)
+{
+     int c;
+
+     while (--count && (c = term_getchar()) != '\n')
+         *buf++ = c;
+
+     *buf = '\0';
+}
+
+
+
 int term_getchar(void)
 {
     unsigned int stat;

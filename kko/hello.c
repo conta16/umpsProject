@@ -27,19 +27,11 @@ typedef unsigned int u32;
 /*the 8 registers that point to the tape devices + endOfRAM which is a pointer to the last written word in the RAM*/
 
 dtpreg_t *tape0_register;
-dtpreg_t *tape1_register;
-dtpreg_t *tape2_register;
-dtpreg_t *tape3_register;
-dtpreg_t *tape4_register;
-dtpreg_t *tape5_register;
-dtpreg_t *tape6_register;
-dtpreg_t *tape7_register;
-dtpreg_t *endOfRAM;
-static int load_ram_block(char *addr);
+dtpreg_t *endOfTAPE;
+static int load_ram_block();
 static int display_window(int posSpace);
 static void init_window();
 static char bbuffer[BLOCK_SIZE];
-static void term_readline();
 static int ld_block();
 
 /*this struct is used to prevent the last word of the block to be cut. That word will be entirely displayed in the next block*/
@@ -54,111 +46,54 @@ static struct window{
 
 int lavallo;
 int indexTape;
+char vet;
 
+static struct pres_forw{
+	unsigned int pres;
+	unsigned int forw;
+} k;
 
-static void loadTapess ()
+unsigned int stat;
+
+static void loadTapess (int indexTape)
 {
     /*I tell where the tape pointers will point*/
-    int stat;
-    int i=0;
+    int count=0;
     tape0_register = (dtpreg_t *) DEV_REG_ADDR(IL_TAPE, 0);
     tape0_register->data0 = RAM_BEGIN;
-    tape1_register = (dtpreg_t *) DEV_REG_ADDR(IL_TAPE, 1);
-    tape1_register->data0 = RAM_BEGIN;
-    tape2_register = (dtpreg_t *) DEV_REG_ADDR(IL_TAPE, 2);
-    tape2_register->data0 = RAM_BEGIN;
-    tape3_register = (dtpreg_t *) DEV_REG_ADDR(IL_TAPE, 3);
-    tape3_register->data0 = RAM_BEGIN;
-    tape4_register = (dtpreg_t *) DEV_REG_ADDR(IL_TAPE, 4);
-    tape4_register->data0 = RAM_BEGIN;
-    tape5_register = (dtpreg_t *) DEV_REG_ADDR(IL_TAPE, 5);
-    tape5_register->data0 = RAM_BEGIN;
-    tape6_register = (dtpreg_t *) DEV_REG_ADDR(IL_TAPE, 6);
-    tape6_register->data0 = RAM_BEGIN;
-    tape7_register = (dtpreg_t *) DEV_REG_ADDR(IL_TAPE, 7);
-    tape7_register->data0 = RAM_BEGIN;
-    dtpreg_t *tmp_tape_register = tape0_register;
-
+    k.pres = RAM_BEGIN;
 
    /*Loading of the files in the RAM. I use tmp_tape_register to iterate in the RAM and, at the end of each do while, I define where tape[i]_register
      must point (beginning of his file) and I make tmp_tape_register point to the next tape*/
 
+    /*if (tape0_register->data0 == RAM_BEGIN) term_puts("diocane");
+    if (tmp->data0 == RAM_BEGIN) term_puts("diocane2");*/
+    while (tape0_register->data1 != EOT && tape0_register->status!=0){
+        loadblock(tape0_register,tape0_register->data0);
+        if (tape0_register->data1 == EOF || tape0_register->data1 == EOT){
+		 count++;
+		if (indexTape == count+1) k.pres = tape0_register->data0+BLOCK_SIZE;
+		if (indexTape == count) k.forw = tape0_register->data0+BLOCK_SIZE;
+	}
+	tape0_register->data0 = tape0_register->data0+BLOCK_SIZE;
+    }
 
-    tape0_register->data0 = tmp_tape_register->data0;
-
-    do{
-        stat = loadblock(tmp_tape_register,tmp_tape_register->data0);
-	tmp_tape_register->data0 = tmp_tape_register->data0+BLOCK_SIZE;
-    }while(stat != EOF && stat != EOT);
-
-    tape1_register->data0 = tmp_tape_register->data0;
-    tmp_tape_register = tape1_register;
-
-    do{
-        stat = loadblock(tmp_tape_register,tmp_tape_register->data0);
-        tmp_tape_register->data0 = tmp_tape_register->data0+BLOCK_SIZE;
-    }while(stat != EOF && stat != EOT);
-
-    tape2_register->data0 = tmp_tape_register->data0;
-    tmp_tape_register = tape2_register;
-
-    do{
-        stat = loadblock(tmp_tape_register,tmp_tape_register->data0);
-        tmp_tape_register->data0 = tmp_tape_register->data0+BLOCK_SIZE;
-    }while(stat != EOF && stat != EOT);
-
-    tape3_register->data0 = tmp_tape_register->data0;
-    tmp_tape_register = tape3_register;
-
-    do{
-        stat = loadblock(tmp_tape_register,tmp_tape_register->data0);
-        tmp_tape_register->data0 = tmp_tape_register->data0+BLOCK_SIZE;
-    }while(stat != EOF && stat != EOT);
-
-    tape4_register->data0 = tmp_tape_register->data0;
-    tmp_tape_register = tape4_register;
-
-    do{
-        stat = loadblock(tmp_tape_register,tmp_tape_register->data0);
-        tmp_tape_register->data0 = tmp_tape_register->data0+BLOCK_SIZE;
-    }while(stat != EOF && stat != EOT);
-
-    tape5_register->data0 = tmp_tape_register->data0;
-    tmp_tape_register = tape5_register;
-
-    do{
-        stat = loadblock(tmp_tape_register,tmp_tape_register->data0);
-        tmp_tape_register->data0 = tmp_tape_register->data0+BLOCK_SIZE;
-    }while(stat != EOF && stat != EOT);
-
-    tape6_register->data0 = tmp_tape_register->data0;
-    tmp_tape_register = tape6_register;
-
-    do{
-        stat = loadblock(tmp_tape_register,tmp_tape_register->data0);
-        tmp_tape_register->data0 = tmp_tape_register->data0+BLOCK_SIZE;
-    }while(stat != EOF && stat != EOT);
-
-    tape7_register->data0 = tmp_tape_register->data0;
-    tmp_tape_register = tape7_register;
-
-    do{
-        stat = loadblock(tmp_tape_register,tmp_tape_register->data0);
-        tmp_tape_register->data0 = tmp_tape_register->data0+BLOCK_SIZE;
-    }while(stat != EOF && stat != EOT);
-
-    endOfRAM = tmp_tape_register;
-
+    /*if (stat == tape0_register->data0) term_puts("diocane3");*/
+    stat = tape0_register->data0;
+    tape0_register->data0 = RAM_BEGIN;
+    /*for (pointer = tape0_register->data0; tape0_register->data1 != EOT; pointer++)
+    	if (*pointer == '\0') count++;*/
 }
 
 
 void main(void)
 {
     char a[128];
-    int i=0;
-    int posSpace;
-    loadTapess();
+    int i=1;
+    unsigned int num_eof;
     indexTape = chooseTape()-48; /*which tape will be seen*/
+    loadTapess(indexTape);
+    tape0_register->data0 = k.pres;
     do lavallo=ld_block(); while (lavallo);
     /* Go to sleep and power off the machine if anything wakes us up */
     WAIT();
@@ -174,25 +109,12 @@ static int ld_block(void){
 
     /*load in the bbuffer the different blocks*/
 
-    if (indexTape == 1) posSpace = load_ram_block(tape0_register->data0);
-    else if (indexTape == 2) posSpace = load_ram_block(tape1_register->data0);
-    else if (indexTape == 3) posSpace = load_ram_block(tape2_register->data0);
-    else if (indexTape == 4) posSpace = load_ram_block(tape3_register->data0);
-    else if (indexTape == 5) posSpace = load_ram_block(tape4_register->data0);
-    else if (indexTape == 6) posSpace = load_ram_block(tape5_register->data0);
-    else if (indexTape == 7) posSpace = load_ram_block(tape6_register->data0);
-    else if (indexTape == 8) posSpace = load_ram_block(tape7_register->data0);
+    posSpace = load_ram_block(tape0_register->data0);
     display_window(posSpace); /*display block*/
 
+    if (tape0_register->data0 == stat || tape0_register->data0 == k.forw) return 0;
     /*In this part, I make the pointer point to the next block, and if it's equal to the pointer of the next tape, then it returns 0*/
-    if (indexTape == 1) if((tape0_register->data0 = tape0_register->data0+BLOCK_SIZE) >=tape1_register->data0) return 0;
-    if (indexTape == 2) if((tape1_register->data0 = tape1_register->data0+BLOCK_SIZE) >= tape2_register->data0) return 0;
-    if (indexTape == 3) if((tape2_register->data0 = tape2_register->data0+BLOCK_SIZE) >= tape3_register->data0) return 0;
-    if (indexTape == 4) if((tape3_register->data0 = tape3_register->data0+BLOCK_SIZE) >= tape4_register->data0) return 0;
-    if (indexTape == 5) if((tape4_register->data0 = tape4_register->data0+BLOCK_SIZE) >= tape5_register->data0) return 0;
-    if (indexTape == 6) if((tape5_register->data0 = tape5_register->data0+BLOCK_SIZE) >= tape6_register->data0) return 0;
-    if (indexTape == 7) if((tape6_register->data0 = tape6_register->data0+BLOCK_SIZE) >= tape7_register->data0) return 0;
-    if (indexTape == 8) if((tape7_register->data0 = tape7_register->data0+BLOCK_SIZE) >= endOfRAM->data0) return 0;
+    /*if (tape0_register->data1 == EOF || tape0_register->data1 == EOT) return 0;*/
     term_readline(buf,128); /*same as getline in c*/
     return 1;
 }
@@ -201,11 +123,11 @@ static void init_window (void){
      finestra.bufpos=0;
      }
 
-static int load_ram_block(char* addr){
+static int load_ram_block(char *addr){
     int i=0;
     tmp_t.tmp_len=0;
     int pos=-1;
-    for (i=0; i<BLOCK_SIZE; i++, addr++)
+    for (i=0; i<BLOCK_SIZE && tape0_register->data0 != stat; i++, addr++, tape0_register->data0++)
          bbuffer[i]=*addr;
     for (i=BLOCK_SIZE-1; i>=0 && pos==-1; i--)
     {
@@ -220,15 +142,5 @@ int bp=0;
 static int display_window(int posSpace){
         term_puts_till_space(bbuffer,posSpace);
         return finestra.bufpos;
-}
-
-static void term_readline(char *buf, unsigned int count)
-{
-    int c;
-
-    while (--count && (c = term_getchar()) != '\n')
-        *buf++ = c;
-
-    *buf = '\0';
 }
 

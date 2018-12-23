@@ -121,11 +121,12 @@ static int loadblock(dtpreg_t *tape_reg, unsigned long int  ramaddr);
 
 static int chooseTape(){
     int indexTape;
+    char a[128];
     term_puts("Which file do you want to open?\n");
     do{
         indexTape = term_getchar();
-	if (indexTape-48 <=0 || indexTape-48 > 8) term_puts("Invalid number, retry\n");
-    }while(indexTape-48 <=0 || indexTape-48 > 8);
+	if (indexTape-48 <=0) term_puts("Invalid number, retry\n");
+    }while(indexTape-48 <=0);
     return indexTape;
 }
 
