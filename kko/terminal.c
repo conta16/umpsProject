@@ -17,22 +17,13 @@
 
 volatile termreg_t *terminal = (termreg_t*) DEV_REG_ADDR(IL_TERMINAL, 0);
 
+typedef unsigned int u32;
 static unsigned int tx_status(volatile termreg_t *tp);
 static unsigned int rx_status(volatile termreg_t *tp);
 
-int term_putline(char* b, int begin){
-    int i=begin;
-    char c=b[i];
-    do{
-        if (c!=10 && c!=13 && c!=0)
-        term_putchar(c);
-        else
-        return i+1;
-        i++;
-        c=b[i];
-    }while (c!='\n' && c!=0 && begin-i<80);
-    return i;
-}
+/*Tjonic's library to manage the terminal with two added functions*/
+
+
 
 int term_putchar(char c)
 {
@@ -80,28 +71,6 @@ int term_puts(char *str)
     return 0;
 }
 
-int term_puts_till_space(char *str, int posSpace)
-{
-    int i;
-    for (i=0; i<=posSpace;i++,++str)
-        if (term_putchar(*str))
-            return -1;
-    return 0;
-}
-
-
-void term_readline(char *buf, unsigned int count)
-{
-     int c;
-
-     while (--count && (c = term_getchar()) != '\n')
-         *buf++ = c;
-
-     *buf = '\0';
-}
-
-
-
 int term_getchar(void)
 {
     unsigned int stat;
@@ -133,4 +102,28 @@ static unsigned int tx_status(volatile termreg_t *tp)
 static unsigned int rx_status(volatile termreg_t *tp)
 {
     return ((tp->recv_status) & TERM_STATUS_MASK);
+}
+
+int term_puts_till_space(char *str, int posSpace)
+{
+    int i;
+    for (i=0; i<=posSpace;i++,++str)
+        if (*str!=13)	/*prevents the output to be bad formatted because of \r characters*/
+        	if (term_putchar(*str))
+            		return -1;
+    return 0;
+}
+
+int term_putline(char* b, int begin){
+    int i=begin;
+    char c=b[i];
+    do{
+        if (c!=10 && c!=13 && c!=0)
+        term_putchar(c);
+        else
+        return i+1;
+        i++;
+        c=b[i];
+    }while (c!='\n' && c!=0 && begin-i<80);
+    return i;
 }

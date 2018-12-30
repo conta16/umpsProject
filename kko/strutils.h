@@ -4,10 +4,13 @@
 unsigned int strtoi();
 void itostr();
 
-unsigned int strtoi(char* s){
+unsigned int strtoi(char* s){ /*Simple conversion on string to unsigned int, -1 in case of error*/
     unsigned int a=0;
-    for (s; *s!=0; s++)
-       a=a+(*s-'0')*10;
+    for (; *s!=0; s++){
+    if (*s<'0' || *s>'9')
+        return -1;   
+    a=a+(*s-'0')*10;
+	}
     a/=10;
     return a;
 }
@@ -17,7 +20,7 @@ void strcpy(char* str1, char* str2){
         *str2=*(str1++);
 }
 
-void itostr(unsigned int a, char* dst){
+void itostr(unsigned int a, char* dst){ /*Conversion of unsigned int to string*/
     char tmp[10];
     unsigned int c=0;
     unsigned int i;
