@@ -4,8 +4,8 @@
 #include "pcb.h"
 #include "asl.h"
 #include "utils.h"
-#include "p1.5test_rikaya_v0.c"
 #include "init.h"
+#include "p1.5test_rikaya_v0.c"
 
 pcb_t tests[3];
 pcb_t ready_queue;

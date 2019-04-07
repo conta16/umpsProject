@@ -1,3 +1,13 @@
+#include "types_rikaya.h"
+#include "listx.h"
+#include "const.h"
+#include "pcb.h"
+#include "asl.h"
+#include "utils.h"
+#include "init.h"
+#include "syscall.h"
+#include "p1.5test_rikaya_v0.c"
+
 void init_area(unsigned int newarea, unsigned int handler){
 	state_t *tmp = newarea;
 	tmp->pc_epc = handler;
@@ -15,7 +25,7 @@ void init_areas(){
 	init_area(SYSCALL_NEW_AREA, syscall_handler);
 }
 
-void init_pcbs(pcb_t[] tests){
+void init_pcbs(pcb_t tests[]){
 	int i;
 	for (i=0; i<3; i++){
 		setBit(IEc,&(tests[i].p_s.status),1);
@@ -30,7 +40,7 @@ void init_pcbs(pcb_t[] tests){
 	tests[2].p_s.pc_epc = (unsigned int) test3;
 }
 
-void init(pcb_t *ready_queue, pcb_t[] tests){
+void init(pcb_t *ready_queue, pcb_t tests[]){
 	initPcbs();
 	LIST_HEAD(&(ready_queue->p_next));
 	init_areas();

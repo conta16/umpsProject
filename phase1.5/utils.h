@@ -1,7 +1,8 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#define RAMTOP 0xFFFFFFFF
+#include <umps/libumps.h>
+
 
 #define INT_NEW_AREA 0x2000008C
 #define TLB_NEW_AREA 0x200001A4
@@ -28,6 +29,11 @@
 #define CU  28   /*Coprocessor Usability: 28 is only the first bit, it goes on till 31th bit*/
 
 
+void tlb_handler(); /*Declaration of handling functions, to be moved in the correct library, when implemented*/
+void trap_handler();
+void int_handler();
+
+
 int getBit (int shift, unsigned int reg){
 	if (shift < 0 || shift >31) return -1;
 	unsigned int tmp = 1;
@@ -47,5 +53,9 @@ int setBit (int shift, unsigned int *reg, int value){
 	return 0;
 }
 
+unsigned int getExcCode(){
+	unsigned int cause=getCAUSE();
+	return (cause&124>>2);
+}
 
 #endif

@@ -41,7 +41,7 @@ typedef struct semd_t {
 
 #define STATE_GPR_LEN 29
 
-/* Processor state */
+/* Processor state 
 typedef struct state {
     unsigned int entry_hi;
     unsigned int cause;
@@ -50,7 +50,7 @@ typedef struct state {
     unsigned int gpr[STATE_GPR_LEN];
     unsigned int hi;
     unsigned int lo;
-} state_t;
+} state_t;*/
 
 #define reg_at  gpr[0]
 #define reg_v0  gpr[1]

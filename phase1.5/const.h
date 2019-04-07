@@ -22,7 +22,9 @@
 
 #define DEV_PER_INT 8 /* Maximum number of devices per interrupt line */
 
+#ifndef NULL
 #define NULL ((void *)0)
+#endif
 
 #define CR 0x0a   /* carriage return as returned by the terminal */
 
