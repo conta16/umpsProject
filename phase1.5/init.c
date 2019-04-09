@@ -6,7 +6,7 @@
 #include "utils.h"
 #include "init.h"
 #include "syscall.h"
-#include "p1.5test_rikaya_v0.c"
+#include "p1.5test_rikaya_v0.h"
 
 void init_area(unsigned int newarea, unsigned int handler){
 	state_t *tmp = newarea;
@@ -42,7 +42,8 @@ void init_pcbs(pcb_t tests[]){
 
 void init(pcb_t *ready_queue, pcb_t tests[]){
 	initPcbs();
-	LIST_HEAD(&(ready_queue->p_next));
+	//LIST_HEAD(&(ready_queue->p_next))  ho commentato questa linea perché ha la semantica di creare una lista di nome "&(ready_queue->p_next)" e gcc si incazza
+	mkEmptyProcQ(&(ready_queue->p_next));
 	init_areas();
 	init_pcbs(tests);
 	int i;

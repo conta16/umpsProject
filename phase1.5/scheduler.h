@@ -1,6 +1,8 @@
 #ifndef SCHEDULER_H
 #define SCHEDULER_H
 
-pcb_t *current process;
+#include "pcb.h"
+
+pcb_t *current_process;
 
 #endif
