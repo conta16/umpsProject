@@ -43,6 +43,7 @@ pcb_t* allocPcb(void) {
 			i++;
 			}
 		first->priority=0;
+		first->original_priority=0;
 		first->p_semkey=NULL;
 	}
 	return first;

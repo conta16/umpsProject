@@ -13,8 +13,6 @@ void init_area(unsigned int newarea, unsigned int handler){
 	tmp->pc_epc = handler;
 	tmp->reg_t9 = tmp->pc_epc;
 	tmp->reg_sp = RAMTOP;
-	/*setBit(KUc,&(tmp->status),0);
-	/*STST(tmp);*/
 	setBit(KUc,&(tmp->status),0);
 	setBit(IEc,&(tmp->status),0);
 	setBit(VMc,&(tmp->status),0);
@@ -48,7 +46,6 @@ void init_pcbs(pcb_t tests[]){
 
 void init(pcb_t *ready_queue, pcb_t tests[]){
 	initPcbs();
-	//LIST_HEAD(&(ready_queue->p_next))  ho commentato questa linea perché ha la semantica di creare una lista di nome "&(ready_queue->p_next)" e gcc si incazza
 	mkEmptyProcQ(&(ready_queue->p_next));
 	init_areas();
 	init_pcbs(tests);
