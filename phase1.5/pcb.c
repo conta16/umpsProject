@@ -64,7 +64,7 @@ int emptyProcQ(struct list_head* head){
 /*La funzione corre la lista head, fino a raggiungere un elemento con priorità maggiore in senso lato di p, o fino all'ultimo elemento e qui si aggiumge p.*/
 void insertProcQ(struct list_head* head, pcb_t * p){
 	struct list_head* begin=head;
-	while ((p->priority)<(container_of(head->next, pcb_t, p_next)->priority) && !list_is_last(head, begin))
+	while ((p->priority)<=(container_of(head->next, pcb_t, p_next)->priority) && !list_is_last(head, begin))
 		head=head->next;
 	list_add(&(p->p_next), head);
 }

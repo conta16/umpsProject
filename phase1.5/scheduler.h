@@ -14,6 +14,6 @@ struct OrPr OrVec[TEST_PROCS];
 
 void scheduler();
 void scheduler_init();
-
+void increment_pcbs_priority();
 
 #endif

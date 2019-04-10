@@ -1,6 +1,8 @@
 #include "utils.h"
 #include "p1.5test_rikaya_v0.h"
 
+typedef char word;
+
 int getBit (int shift, unsigned int reg){
         if (shift < 0 || shift >31) return -1;
         unsigned int tmp = 1;
@@ -25,7 +27,13 @@ unsigned int getExcCode(){
         return (cause&124)>>2;
 }
 
+void copyState(state_t* src, state_t* dst){
+	int i=0;
+	word *reader, *writer;
+	for (i=0,reader=(word*) src, writer=(word*) src; i<sizeof(state_t);i++, reader++, writer++)
+		*writer=*reader;
+
+}
 
 void tlb_handler(){return;}
 void trap_handler(){addokbuf("trap handler");}
-void int_handler(){return;}

@@ -6,18 +6,12 @@
 #include "utils.h"
 #include "init.h"
 #include "p1.5test_rikaya_v0.h"
+#include "scheduler.h"
 
-pcb_t tests[TEST_PROCS];
-pcb_t ready_queue;
 unsigned int a;
 int main(void)
 {
-	a=1;
-	/*there should be HALT, function declared in libumps. Since it is implemented elsewhere and I haven't found it yet, it is still missing*/
 	init(&ready_queue, tests);
-	a=127;
-	SYSCALL(SYS3, 0, 0, 0);
-	a=255;
-	addokbuf("cavallino");
+	scheduler(&(ready_queue.p_next));
 	HALT();
 }

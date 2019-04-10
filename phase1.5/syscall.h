@@ -5,5 +5,9 @@
 void syscall_handler();
 void syscall_error();
 void terminateProcess();
+void oldarea_pc_increment();
+void terminateProcess();
+void recursive_termination();
+
 
 #endif

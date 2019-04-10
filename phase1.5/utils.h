@@ -31,7 +31,6 @@
 
 void tlb_handler(); /*Declaration of handling functions, to be moved in the correct library, when implemented*/
 void trap_handler();
-void int_handler();
 
 
 int getBit (int shift, unsigned int reg);
