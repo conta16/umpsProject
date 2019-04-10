@@ -30,6 +30,7 @@
 #define SYS3 3
 #define STEPS 6
 #define GANTT_SIZE 20
+#define TEST_PROCS 3
 
 typedef unsigned int devreg;
 

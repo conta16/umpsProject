@@ -7,7 +7,7 @@
 #include "init.h"
 #include "p1.5test_rikaya_v0.h"
 
-pcb_t tests[TEST_PROCS];
+pcb_t tests[3];
 pcb_t ready_queue;
 unsigned int a;
 int main(void)
@@ -16,7 +16,8 @@ int main(void)
 	/*there should be HALT, function declared in libumps. Since it is implemented elsewhere and I haven't found it yet, it is still missing*/
 	init(&ready_queue, tests);
 	a=127;
-	SYSCALL(SYS3, 0, 0, 0);
+	
+	SYSCALL(3, 0, 0, 0);
 	a=255;
 	addokbuf("cavallino");
 	HALT();

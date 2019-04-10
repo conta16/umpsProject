@@ -2,7 +2,7 @@
 #define SYSCALL_H
 
 
-int syscall_handler();
+void syscall_handler();
 void syscall_error();
 void terminateProcess();
 

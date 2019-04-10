@@ -1,4 +1,5 @@
 #include "utils.h"
+#include "p1.5test_rikaya_v0.h"
 
 int getBit (int shift, unsigned int reg){
         if (shift < 0 || shift >31) return -1;
@@ -21,10 +22,10 @@ int setBit (int shift, unsigned int *reg, int value){
 
 unsigned int getExcCode(){
         unsigned int cause=getCAUSE();
-        return (cause&124>>2);
+        return (cause&124)>>2;
 }
 
 
 void tlb_handler(){return;}
-void trap_handler(){return;}
+void trap_handler(){addokbuf("trap handler");}
 void int_handler(){return;}

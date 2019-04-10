@@ -11,10 +11,13 @@
 void init_area(unsigned int newarea, unsigned int handler){
 	state_t *tmp = newarea;
 	tmp->pc_epc = handler;
+	tmp->reg_t9 = tmp->pc_epc;
 	tmp->reg_sp = RAMTOP;
+	/*setBit(KUc,&(tmp->status),0);
+	/*STST(tmp);*/
+	setBit(KUc,&(tmp->status),0);
 	setBit(IEc,&(tmp->status),0);
 	setBit(VMc,&(tmp->status),0);
-	setBit(KUc,&(tmp->status),0);
 	setBit(TE,&(tmp->status),1);
 }
 
@@ -36,8 +39,11 @@ void init_pcbs(pcb_t tests[]){
 		tests[i].priority = i+1;
 	}
 	tests[0].p_s.pc_epc = (unsigned int) test1;
+	tests[0].p_s.reg_t9 = tests[0].p_s.pc_epc;
 	tests[1].p_s.pc_epc = (unsigned int) test2;
+	tests[1].p_s.reg_t9 = tests[1].p_s.pc_epc;
 	tests[2].p_s.pc_epc = (unsigned int) test3;
+	tests[2].p_s.reg_t9 = tests[2].p_s.pc_epc;
 }
 
 void init(pcb_t *ready_queue, pcb_t tests[]){
