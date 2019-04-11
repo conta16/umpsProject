@@ -7,6 +7,7 @@
 
 void syscall_handler(){
 	state_t* old=(state_t*)SYSCALL_OLD_AREA; //renzo ha detto qualcosa del tipo di spostare il contenuto di oldarea->state in pcb->state in modo da far ripartire il processo con il processore allo stato giusto
+	copyState(old,&(current->p_s));
 	oldarea_pc_increment();
 	if (getExcCode()!=8)
 		PANIC();

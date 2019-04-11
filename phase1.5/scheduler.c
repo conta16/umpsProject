@@ -1,12 +1,12 @@
 #include "scheduler.h"
 #include "listx.h"
 #include "types_rikaya.h"
+#include "init.h"
+#include "utils.h"
 #include <umps/libumps.h>
 
 void scheduler(struct list_head* head){
-	struct list_head* scroll = head->prev;
-	state_t* tmp_state=NULL;
-	if (getTIMER()>2000 && getTIMER()<3000 && current!=NULL){
+	if (current!=NULL){
 		/*il processo nel processore va reimpostato alla sua pr originale, lo rimetti in coda, rifai il calcolo del max poi aging degli altri*/
 	current->priority = current->original_priority;
 	insertProcQ(head,current);
@@ -15,7 +15,7 @@ void scheduler(struct list_head* head){
 	increment_pcbs_priority(head);
 	setTIMER(3000);
 	log_process_order((int)(current->original_priority));
-	LDST(tmp_state);
+	LDST(&(current->p_s));
 		}
 	else{
 		scheduler_init(head);

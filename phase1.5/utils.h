@@ -2,7 +2,7 @@
 #define UTILS_H
 
 #include <umps/libumps.h>
-
+#include "types_rikaya.h"
 
 #define INT_NEW_AREA 0x2000008C
 #define TLB_NEW_AREA 0x200001A4
@@ -32,7 +32,7 @@
 void tlb_handler(); /*Declaration of handling functions, to be moved in the correct library, when implemented*/
 void trap_handler();
 
-
+void copyState (state_t *src, state_t *dst);
 int getBit (int shift, unsigned int reg);
 int setBit();
 unsigned int getExcCode();

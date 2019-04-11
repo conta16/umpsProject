@@ -1,4 +1,5 @@
 #include "utils.h"
+#include "types_rikaya.h"
 #include "p1.5test_rikaya_v0.h"
 
 typedef char word;
@@ -30,7 +31,7 @@ unsigned int getExcCode(){
 void copyState(state_t* src, state_t* dst){
 	int i=0;
 	word *reader, *writer;
-	for (i=0,reader=(word*) src, writer=(word*) src; i<sizeof(state_t);i++, reader++, writer++)
+	for (i=0,reader=(word*) src, writer=(word*) dst; i<sizeof(state_t);i++, reader++, writer++)
 		*writer=*reader;
 
 }

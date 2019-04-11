@@ -1,6 +1,8 @@
 #ifndef INTERRUPT_H
 #define INTERRUPT_H
 
-void interrupt_handler();
+int rcvPLT();
+int getLineInt();
+extern void int_handler();
 
-#endif
+#endif INTERRUPT_H
