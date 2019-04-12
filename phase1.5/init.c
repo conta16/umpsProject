@@ -41,6 +41,7 @@ void init_pcbs(pcb_t tests[]){
 		tests[i].p_s.status|=(1UL<<2); //LDST() fa un push all'indietro dei bit IE, dunque per settare l'IEc occorre settare anche IEp.
 		tests[i].p_s.reg_sp = RAMTOP-FRAMESIZE*(i+1);
 		tests[i].priority = i+1;
+		tests[i].original_priority= i+1;
 	}
 	tests[0].p_s.pc_epc = (unsigned int) test1;
 	tests[0].p_s.reg_t9 = tests[0].p_s.pc_epc;

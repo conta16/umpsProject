@@ -42,9 +42,13 @@ void terminateProcess(){
 
 
 void recursive_termination(pcb_t* pcb) {
+	addokbuf("1");
 	while (!emptyChild(pcb))
 		recursive_termination(removeChild(pcb));
+	addokbuf("as");
 	outProcQ(&(ready_queue.p_next), pcb);
+	addokbuf("erer");
 	outChild(pcb);
+
 	freePcb(pcb);
 }

@@ -9,12 +9,11 @@ void scheduler(struct list_head* head){
 	if (current!=NULL){
 		/*il processo nel processore va reimpostato alla sua pr originale, lo rimetti in coda, rifai il calcolo del max poi aging degli altri*/
 	current->priority = current->original_priority;
+	increment_pcbs_priority(head);
 	insertProcQ(head,current);
 	current=removeProcQ(head);
 	log_process_order((int)(current->original_priority));
-	increment_pcbs_priority(head);
 	setTIMER(3000);
-	log_process_order((int)(current->original_priority));
 	LDST(&(current->p_s));
 		}
 	else{
