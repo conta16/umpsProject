@@ -14,6 +14,7 @@ void syscall_handler(){
 	switch (old->reg_a0){
 	case SYS3:
 		terminateProcess();
+		scheduler(ready_queue);
 		break;
 	case 10:
 		oldarea_pc_increment();
@@ -42,13 +43,10 @@ void terminateProcess(){
 
 
 void recursive_termination(pcb_t* pcb) {
-	addokbuf("1");
 	while (!emptyChild(pcb))
 		recursive_termination(removeChild(pcb));
-	addokbuf("as");
 	outProcQ(&(ready_queue.p_next), pcb);
-	addokbuf("erer");
 	outChild(pcb);
-
 	freePcb(pcb);
+
 }
