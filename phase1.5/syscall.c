@@ -14,7 +14,7 @@ void syscall_handler(){
 	switch (old->reg_a0){
 	case SYS3:
 		terminateProcess();
-		scheduler(ready_queue);
+		scheduler(&(ready_queue.p_next));
 		break;
 	case 10:
 		oldarea_pc_increment();
