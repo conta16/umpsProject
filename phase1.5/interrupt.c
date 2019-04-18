@@ -1,16 +1,12 @@
 #include "types_rikaya.h"
-#include "listx.h"
 #include "const.h"
-#include "pcb.h"
-#include "asl.h"
 #include "utils.h"
-#include "init.h"
 #include "interrupt.h"
-#include "syscall.h"
 #include "scheduler.h"
-#include "umps/libumps.h"
-#include "p1.5test_rikaya_v0.h"
+#include <umps/libumps.h>
 
+extern pcb_t* current;
+extern pcb_t ready_queue;
 
 int rcvPLT(){
         unsigned int tmp = getCAUSE();

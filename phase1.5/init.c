@@ -1,18 +1,25 @@
-#include "types_rikaya.h"
 #include "listx.h"
 #include "const.h"
 #include "pcb.h"
 #include "asl.h"
 #include "utils.h"
 #include "init.h"
-#include "syscall.h"
-#include "p1.5test_rikaya_v0.h"
-#include "interrupt.h"
 
 
-void init_area(unsigned int newarea, unsigned int handler){
+pcb_t *tests[TEST_PROCS];
+pcb_t ready_queue;
+
+
+extern void test1();
+extern void test2();
+extern void test3();
+
+extern void syscall_handler();
+extern void int_handler();
+
+void init_area(state_t* newarea, void (*handler)()){
 	state_t *tmp = newarea;
-	tmp->pc_epc = handler;
+	tmp->pc_epc = (int)handler;
 	tmp->reg_t9 = tmp->pc_epc;
 	tmp->reg_sp = RAMTOP;
 	setBit(KUc,&(tmp->status),0);
@@ -23,10 +30,10 @@ void init_area(unsigned int newarea, unsigned int handler){
 }
 
 void init_areas(){
-	init_area(INT_NEW_AREA, int_handler);
-	init_area(TLB_NEW_AREA, tlb_handler);
-	init_area(TRAP_NEW_AREA, trap_handler);
-	init_area(SYSCALL_NEW_AREA, syscall_handler);
+	init_area((state_t*)INT_NEW_AREA, int_handler);
+	init_area((state_t*)TLB_NEW_AREA, tlb_handler);
+	init_area((state_t*)TRAP_NEW_AREA, trap_handler);
+	init_area((state_t*)SYSCALL_NEW_AREA, syscall_handler);
 }
 
 void init_pcbs(pcb_t *tests[]){

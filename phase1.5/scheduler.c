@@ -1,10 +1,12 @@
 #include "scheduler.h"
 #include "listx.h"
 #include "types_rikaya.h"
-#include "init.h"
 #include "utils.h"
 #include <umps/libumps.h>
+#include "pcb.h"
 
+pcb_t* current;
+extern void log_process_order();
 void scheduler(struct list_head* head){
 	if (current!=NULL){
 		/*il processo nel processore va reimpostato alla sua pr originale, lo rimetti in coda, rifai il calcolo del max poi aging degli altri*/

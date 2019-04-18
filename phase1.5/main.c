@@ -1,14 +1,13 @@
 #include "types_rikaya.h"
 #include "listx.h"
 #include "const.h"
-#include "pcb.h"
-#include "asl.h"
-#include "utils.h"
 #include "init.h"
-#include "p1.5test_rikaya_v0.h"
 #include "scheduler.h"
+#include "utils.h"
 
-unsigned int a;
+pcb_t ready_queue;
+pcb_t *tests[TEST_PROCS];
+
 int main(void)
 {
 	init(&ready_queue, tests);

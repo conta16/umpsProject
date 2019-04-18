@@ -2,8 +2,11 @@
 #include "syscall.h"
 #include "scheduler.h"
 #include "utils.h"
-#include "p1.5test_rikaya_v0.h"
-#include "init.h"
+#include "pcb.h"
+
+extern pcb_t* current;
+extern pcb_t ready_queue;
+extern void adderrbuf();
 
 void syscall_handler(){
 	state_t* old=(state_t*)SYSCALL_OLD_AREA; //renzo ha detto qualcosa del tipo di spostare il contenuto di oldarea->state in pcb->state in modo da far ripartire il processo con il processore allo stato giusto
@@ -48,5 +51,4 @@ void recursive_termination(pcb_t* pcb) {
 	outProcQ(&(ready_queue.p_next), pcb);
 	outChild(pcb);
 	freePcb(pcb);
-
 }

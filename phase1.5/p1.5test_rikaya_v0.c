@@ -2,7 +2,7 @@
 #include "listx.h"
 #include <umps/libumps.h>
 #include <umps/arch.h>
-#include "p1.5test_rikaya_v0.h"
+
 #include "pcb.h"
 
 #define TRANSMITTED 5
@@ -34,6 +34,7 @@ int test3_baton[STEPS + 1] = {0};
 
 char gantt_diagram[GANTT_SIZE] = {0};
 
+typedef unsigned int devreg;
 
 static unsigned int get_microseconds()
 {

@@ -1,8 +1,9 @@
 #include "utils.h"
 #include "types_rikaya.h"
-#include "p1.5test_rikaya_v0.h"
 
 typedef char word;
+
+extern void addokbuf();
 
 int getBit (int shift, unsigned int reg){
         if (shift < 0 || shift >31) return -1;
