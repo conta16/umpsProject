@@ -40,18 +40,17 @@ void init_pcbs(pcb_t *tests[]){
 	int i;
 	for (i=0; i<3; i++){
 		tests[i] = allocPcb();
-		setBit(IEc,&(tests[i]->p_s.status),1);
-		setBit(VMc,&(tests[i]->p_s.status),0);
+		setBit(IEc,&(tests[i]->p_s.status),1); //settaggio di IEc a 1: ineterrupt abilitati
+		setBit(VMc,&(tests[i]->p_s.status),0); //settaggio di VM a 0: viltual memory disabilitata
 		setBit(TE,&(tests[i]->p_s.status),1);
-		setBit(KUc,&(tests[i]->p_s.status),0);
-		tests[i]->p_s.status|=(127<<8);
-		tests[i]->p_s.status|=(1UL<<0);
+		setBit(KUc,&(tests[i]->p_s.status),0); //settaggio di user mode
+		tests[i]->p_s.status|=(127<<8); // Settaggio dell'interrupt mask del processo. Tutti gli interrupt sono attivati tranne quello del terminale
 		tests[i]->p_s.status|=(1UL<<2); //LDST() fa un push all'indietro dei bit IE, dunque per settare l'IEc occorre settare anche IEp.
-		tests[i]->p_s.reg_sp = RAMTOP-FRAMESIZE*(i+1);
-		tests[i]->priority = i+1;
+		tests[i]->p_s.reg_sp = RAMTOP-FRAMESIZE*(i+1);//Settaggio come da specifica dello stack pointer del processo
+		tests[i]->priority = i+1; //Settaggio come da specificadei due campi relativi le priorità
 		tests[i]->original_priority= i+1;
 	}
-	tests[0]->p_s.pc_epc = (unsigned int) test1;
+	tests[0]->p_s.pc_epc = (unsigned int) test1; //settaggio di t9 e pc all'indirizzo di test-i
 	tests[0]->p_s.reg_t9 = tests[0]->p_s.pc_epc;
 	tests[1]->p_s.pc_epc = (unsigned int) test2;
 	tests[1]->p_s.reg_t9 = tests[1]->p_s.pc_epc;
