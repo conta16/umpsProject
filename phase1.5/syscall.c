@@ -35,15 +35,15 @@ void oldarea_pc_increment(){ //utility: affinchè dopo la syscall, il processo c
 }
 
 void terminateProcess(){ //Gestore della systeamcall 3.
-	recursive_termination(current); //Termina il processo corrente e la progenie
+	pcb_t *tmp= current;
 	current=NULL;
+	recursive_termination(tmp); //Termina il processo corrente e la progenie
 	}
 
 
 void recursive_termination(pcb_t* pcb) {
 	while (!emptyChild(pcb)) //chiamata ricorsiva su tutta la progenie
-		recursive_termination(removeChild(pcb));
+		recursive_termination(removeChild(pcb)); //Ogni nodo chiama la funzione sul primo figlio, rimuovendolo già dalla lista dei figli
 	outProcQ(&(ready_queue.p_next), pcb); //nel caso il processo si trovi in ready_queue, viene rimosso (sostanzialmente inutile, ma previsto dalla specifica)
-	outChild(pcb); //il processo corrente viene rimosso dalla lista dei figli del processo di cui è padre
 	freePcb(pcb); // Il pcb viene aggiunto alla lista dei processi liberi.
 }

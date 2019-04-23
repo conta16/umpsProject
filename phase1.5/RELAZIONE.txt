@@ -47,7 +47,9 @@
 
 - syscall.c:
 
-	
+	Primitivo gestore delle systemcall. Dopo eserre chiamato controlla che Cause.ExcCode sia corretto, se lo è, dopo ciò verifica che nel registro a0 il codice della chiamata corrispona a quello della systemcall da gestire, in caso positivo viene chiamato il gestore opprtuno, altrimenti un gestore di default che segnala l'errore.
+	Il gestore della chiamata SYS3, come da specifica, prima di eseguirsi sul nodo del proceso da cui è stato chamato, effettua una visita posticipata del'albero dei processi radicato nel processo corrente in modo da eseguirsi in ogni caso con la condizione che il processo da tetrminare non ha figli.
+	L'eliminazione di ciascun processo consiste in: chiamata ricorsiva, eliminazione dalla sta dei figli del processo padre, eliminazione dalla ready queue, e liberazione del pcb sul quale risiedeva il processo. 
 
 - utils.c:
 

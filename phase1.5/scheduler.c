@@ -32,7 +32,10 @@ void scheduler(struct list_head* head){
 	else{
 		/*se il processore non ha un processo significa che il processo prima ha terminato la sua esecuzione
 		esattamente alla fine dell' ultimo time-slice quindi lo trattiamo come una nuova inizializzazione*/
-		scheduler_init(head);
+		if (!list_empty(head))
+			scheduler_init(head);
+		else
+			HALT();
 		}
 }
 

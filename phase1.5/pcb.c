@@ -144,14 +144,3 @@ pcb_t* outChild (pcb_t* p){
 	}
 	return NULL;
 }
-
-
-
-
-
-
-
-
-
-
-
