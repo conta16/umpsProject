@@ -28,6 +28,7 @@
 #define IEo 4
 #define KUo 5
 #define IM  8    /*Interrupt Mask: 8 is only the first bit, it goes on till 15 depending on the type of interrupt*/
+#define IP IM
 #define BEV 22
 #define VMc 24
 #define VMp 25
