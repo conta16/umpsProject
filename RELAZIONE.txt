@@ -1,0 +1,56 @@
+------------ RELAZIONE ------------
+
+- main.c:
+
+	Definisce ready_queue (che farà da sentinella alla lista) e un vettore di pcb_t* di 3 elementi che punteranno ai 3 processi per test1, test2 e test3.
+	La prima funzione chiamata è init che serve per l'inizializzazione dei pcb e delle new area, successivamente viene chiamato scheduler che si occuperà di scegliere
+	ogni volta il processo da caricare nel processore.
+
+- init.c:
+
+	init(pcb_t*, pcb_t* []) è la funzione chiamata dal main.
+	Ogni pcb_t che si ha nel vettore va allocato settando in maniera opportuna i campi della struttura e i bit di stato: IEc (interrupt enable bit) attivo (settato quindi ad 1),
+	VMc (virtual memory bit) spento (0), TE (Processor Local Timer bit) attivo (1), KUc (kernel user bit) attivo (0).
+	Comunque abbiamo scelto, per ora, di tenere tutti i bit dell'interrupt mask (IM) attivi tranne l'ultimo (interrupt del terminale) perchè non viene ancora gestito in questa fase e darebbe problemi
+	in fase di esecuzione.
+	Successivamente si dà una priorità al processo e si setta il valore del registro sp e pc_epc: quest'ultimo sarà l'indirizzo in memoria delle funzioni che saranno eseguite dai processi.
+
+	Per le new area, i registri sono settati in maniera simile a quelli del pcb, a parte che:
+
+		- IEc è disabilitato (abbiamo anche messo tutti i bit di IM a 0, anche se ciò non influisce sull'esecuzione del codice)
+		- Pc_epc punta agli handler che gestiscono la rispettiva eccezione
+
+	Infine, si inseriscono nella ready_queue i 3 processi tramite funzioni implementate in pcb.c.
+
+	NOTA: Ogni volta che viene modificato il valore di pc_epc, viene modificato anche il registro t9 per ragioni tecniche della macchina simulata da umps2.
+
+- interrupt.c:
+
+	E' l'handler che gestisce gli interrupt e viene chiamato quando, durante l'esecuzione di un processo con IEc abilitato, viene generato un interrupt da un determinato device (lo stato del processo
+	caricato dovrà avere anche il bit in IM di quel device attivo).
+	In questa fase abbiamo gestito solamente un interrupt: quello generato dal Processor Local Timer.
+	int_handler viene chiamato dalla new area degli interrupt e copia in current (pcb_t* che punta al processo corrente) lo stato che era stato salvato in old_area prima dell'interrupt.
+	Successivamente, viene chiamato getLineInt() che determina su quale linea si è avuto l'interrupt, prendendo sempre per primo l'interrupt generato da device con priorità maggiore.
+	Alla fine, manda l'ack dell'interrupt (se non venisse mandato, il programma continuerebbe a vedere sempre il bit attivo e andrebbe infinite volte nell'int_handler) e ripassa
+	il controllo allo scheduler.
+
+- scheduler.c:
+
+	Viene definito current, il pcb che punta sempre al processo attualmente caricato sul processore: negli altri file, viene sempre richiamato utilizzando, all'inizio della dichiarazione, "extern"
+	Se current è NULL, allora vuol dire che non è stato ancora caricato nessun processo su processore, oppure è appena terminato un processo. In questo caso, viene chiamato scheduler_init
+	che si occupa di dare un valore a current e di trovare il processo da inserire nel processore.
+	Altrimenti, si va avanti con la normale esecuzione di uno scheduler RR con aging: il processo in memoria viene rimesso a priorità originaria mentre quelli presenti nella ready_queue vengono
+	aumentati di un'unità.
+	Dopo, si rimette il processo puntato da current nella ready queue e si carica nuovamente il processo con maggiore priorità.
+	Vengono quindi chiamate le funzioni setTIMER(3000) (setta il Processor Local Timer a 3 ms, quindi ogni 3 ms l'esecuzione passa all'interrupt handler) e LDST, che carica il processo selezionato
+	sul processore
+
+- syscall.c:
+
+	Primitivo gestore delle systemcall. Dopo eserre chiamato controlla che Cause.ExcCode sia corretto, se lo è, dopo ciò verifica che nel registro a0 il codice della chiamata corrispona a quello della systemcall da gestire, in caso positivo viene chiamato il gestore opprtuno, altrimenti un gestore di default che segnala l'errore.
+	Il gestore della chiamata SYS3, come da specifica, prima di eseguirsi sul nodo del proceso da cui è stato chamato, effettua una visita posticipata del'albero dei processi radicato nel processo corrente in modo da eseguirsi in ogni caso con la condizione che il processo da tetrminare non ha figli.
+	L'eliminazione di ciascun processo consiste in: chiamata ricorsiva, eliminazione dalla sta dei figli del processo padre, eliminazione dalla ready queue, e liberazione del pcb sul quale risiedeva il processo. 
+
+- utils.c:
+
+	File con funzioni di "utilità", cioè che possono risultare comode per più task.
