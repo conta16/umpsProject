@@ -45,6 +45,8 @@ pcb_t* allocPcb(void) {
 		first->priority=0;
 		first->original_priority=0;
 		first->p_semkey=NULL;
+		first->utp_time=0;
+		first->ktp_time=0;
 	}
 	return first;
 }
@@ -86,7 +88,7 @@ pcb_t* removeProcQ(struct list_head* head){
 		list_del(list_next(head));
 		return del;
 	}
-	
+
 }
 
 /*Per scorrere la lista usiamo un list_head* d' appoggio, request, che facciamo ritornare quando individuiamo l' elemento richiesto*/
