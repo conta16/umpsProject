@@ -21,6 +21,7 @@ extern void log_process_order();
 
 void scheduler(struct list_head* head){
 	if (current!=NULL){
+		current->utp_time += /*3000-*/getTIMER() - lkp_time;
 		current->priority = current->original_priority;/*se il processore ha un processo ne riaggiorniamo la priorità, settandola a quella originale*/
 		increment_pcbs_priority(head);/*effettuiamo l' aging su tutti gli altri processi*/
 		insertProcQ(head,current);/*reinseriamo il processo corrente nella coda dei processi*/

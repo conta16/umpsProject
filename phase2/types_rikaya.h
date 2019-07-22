@@ -17,7 +17,7 @@ typedef struct pcb_t {
 				p_sib;
 
 	/* processor state, etc */
-	state_t       		p_s;     
+	state_t       		p_s;
 
 	/* process priority */
 	int			priority;
@@ -26,6 +26,10 @@ typedef struct pcb_t {
 
 	/* key of the semaphore on which the process is eventually blocked */
 	int			*p_semkey;
+
+	int 		utp_time;  /*tempo totale in user mode*/
+	int 		ktp_time;  /*tempo totale in kernel mode*/
+	int 		lkp_time;  /*tempo totale dell' ultima syscall*/
 } pcb_t;
 
 
@@ -43,7 +47,7 @@ typedef struct semd_t {
 
 #define STATE_GPR_LEN 29
 
-/* Processor state 
+/* Processor state
 typedef struct state {
     unsigned int entry_hi;
     unsigned int cause;
