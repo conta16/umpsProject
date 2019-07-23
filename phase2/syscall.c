@@ -9,20 +9,46 @@ extern pcb_t ready_queue;
 extern void adderrbuf();
 
 void syscall_handler(){
+	int old_time = /*3000-*/getTIMER();
+	int new_time;
 	state_t* old=(state_t*)SYSCALL_OLD_AREA; //old punta all'old-area
+
 	if (getExcCode()!=8) //se il codice dell'eccezione è diverso da quello da gestire, kernel panic.
 		PANIC();
 	switch (old->reg_a0){
+	case SYS1: /*chiamo la SYS1 per ritornare il tempo passato in questo processo*/
+		countTime();
+		break;
 	case SYS3: // se il tipo di chiamata è 3, chiamiamo il gestore deputato, poi lo scheduler
 		terminateProcess();
+		new_time = /*3000-*/getTIMER();
+		current->ktp_time += new_time - old_time;
+		current->lkp_time = new_time - old_time;
 		scheduler(&(ready_queue.p_next));
 		break;
+	case IOCOMMAND:
+		if (check_terminal(old->reg_a2) == -1)
+			old->reg_a2->command = old->reg_a1;
+		else
+			if (old->reg_a3 == 0)
+				old->reg_a2->transm_command = old->reg_a1;
+			else
+				old->reg_a2->recv_command = old->reg_a1;
+		
 	default: //in ogni altro caso, errore.
 		syscall_error();
 		break;
 		}
+
 	}
 
+int check_terminal(unsigned int *reg){
+	int i;
+	for (i=0; i<8; i++)
+		if (DEV_REG_ADDR(IL_TERMINAL,i) == reg)
+			return i;
+	return -1;
+}
 
 void syscall_error(){
 	adderrbuf("syscallerror");

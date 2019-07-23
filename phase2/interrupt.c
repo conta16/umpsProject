@@ -49,6 +49,7 @@ int getLineInt(){
 extern void int_handler(){
 	int i;
 	dtpreg_t* dev_register;
+	termreg_t* term_register;
 	copyState((state_t *)INT_OLD_AREA, &(current->p_s)); /*funzione definita in utils.c, copia lo stato dell'old area e lo mette in current, che è il puntatore all'ultimo pcb scelto dallo scheduler*/
 	int line = getLineInt();
 	if (line == IL_IPI+8){
@@ -86,8 +87,9 @@ extern void int_handler(){
         }
         else if (line == IL_TERMINAL+8){
                 i = getDevice(INST_INT_LINE7, INT_DEV_LINE7);
-                dev_register = (dtpreg_t *) DEV_REG_ADDR(IL_TERMINAL, i);
-                dev_register->command = CMD_ACK;
+                term_register = (termreg_t *) DEV_REG_ADDR(IL_TERMINAL, i);
+                if (term_register->transm_status == CHAR_TRANSMD) term_register->transm_command = CMD_ACK;
+		if (term_register->recv_status == CHAR_RECVD) term_register->recv_command = CMD_ACK;
         }
 
 }
