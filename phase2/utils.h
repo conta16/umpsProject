@@ -51,6 +51,9 @@
 #define INT_DEV_LINE6 0x10000048
 #define INT_DEV_LINE7 0x1000004C
 
+#define INBOX 0x10000400
+#define OUTBOX 0x10000404
+
 #define IL_IPI 0
 #define IL_CPUTIMER 1
 #define IL_TIMER 2
@@ -60,6 +63,18 @@
 #define IL_PRINTER 6
 #define IL_TERMINAL 7
 
+#define DEV_NOT_INST 0
+#define DEV_READY 1
+#define ILLEGAL_OP 2
+#define DEV_BUSY 3
+#define RECV_ERROR 4
+#define TRANSM_ERROR 4
+#define CHAR_RECVD 5
+#define CHAR_TRANSMD 5
+#define CMD_RESET 0
+#define CMD_ACK 1
+#define CMD_TRANSM 2
+#define CMD_RECV 2
 
 void tlb_handler(); /*Declaration of handling functions, to be moved in the correct library, when implemented*/
 void trap_handler();

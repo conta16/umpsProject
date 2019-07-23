@@ -52,7 +52,9 @@ extern void int_handler(){
 	copyState((state_t *)INT_OLD_AREA, &(current->p_s)); /*funzione definita in utils.c, copia lo stato dell'old area e lo mette in current, che è il puntatore all'ultimo pcb scelto dallo scheduler*/
 	int line = getLineInt();
 	if (line == IL_IPI+8){
-
+		/*nessuna azione significativa è associata a questa linea per questa fase: mi limito a mandare l'ack, senza sapere quale processore ha mandato l'interrupt*/
+		unsigned int *tmp = INBOX;
+		*tmp = (unsigned int)-1;
 	}
 	else if (line == IL_CPUTIMER+8){
 		setTIMER((unsigned int)-1); /*ack del Processor Local Timer*/
