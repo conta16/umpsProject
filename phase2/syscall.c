@@ -9,28 +9,18 @@ extern pcb_t ready_queue;
 extern void adderrbuf();
 
 void syscall_handler(){
-	int old_time = /*3000-*/getTIMER();
-	int new_time;
 	state_t* old=(state_t*)SYSCALL_OLD_AREA; //old punta all'old-area
-
 	if (getExcCode()!=8) //se il codice dell'eccezione è diverso da quello da gestire, kernel panic.
 		PANIC();
 	switch (old->reg_a0){
-	case SYS1: /*chiamo la SYS1 per ritornare il tempo passato in questo processo*/
-		countTime();
-		break;
 	case SYS3: // se il tipo di chiamata è 3, chiamiamo il gestore deputato, poi lo scheduler
 		terminateProcess();
-		new_time = /*3000-*/getTIMER();
-		current->ktp_time += new_time - old_time;
-		current->lkp_time = new_time - old_time;
 		scheduler(&(ready_queue.p_next));
 		break;
 	default: //in ogni altro caso, errore.
 		syscall_error();
 		break;
 		}
-
 	}
 
 
