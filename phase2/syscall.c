@@ -7,6 +7,7 @@
 extern pcb_t* current;
 extern pcb_t ready_queue;
 extern void adderrbuf();
+unsigned int keys[48]; /* da sistemare in posto opportuno e inizializzarlo per bene*/
 
 void syscall_handler(){
 	int old_time = /*3000-*/getTIMER();
@@ -27,14 +28,19 @@ void syscall_handler(){
 		scheduler(&(ready_queue.p_next));
 		break;
 	case IOCOMMAND:
-		if (check_terminal(old->reg_a2) == -1)
+		int dev = check_terminal(old->reg_a2);
+		if (dev < 32)
 			old->reg_a2->command = old->reg_a1;
 		else
 			if (old->reg_a3 == 0)
 				old->reg_a2->transm_command = old->reg_a1;
 			else
 				old->reg_a2->recv_command = old->reg_a1;
-		
+		do{
+			int b = insertBlocked(&(keys[dev]),current);
+			if (dev < 32 || (dev < 40 && old->reg_a3 == 0)) SYSCALL(PASSEREN,&(keys[dev]),0,0);
+			else SYSCALL(PASSEREN,&(keys[dev+8]),0,0);
+		}while(b == 1);
 	default: //in ogni altro caso, errore.
 		syscall_error();
 		break;
@@ -42,11 +48,12 @@ void syscall_handler(){
 
 	}
 
-int check_terminal(unsigned int *reg){
-	int i;
-	for (i=0; i<8; i++)
-		if (DEV_REG_ADDR(IL_TERMINAL,i) == reg)
-			return i;
+int check_device(unsigned int *reg){
+	int i,dev;
+	for (dev=3; dev<8; dev++)
+		for (i=0; i<8; i++)
+			if (DEV_REG_ADDR(dev,i) == reg)
+				return i+((dev-3)*8);
 	return -1;
 }
 
