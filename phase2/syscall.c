@@ -17,12 +17,12 @@ void syscall_handler(){
 	if (getExcCode()!=8) //se il codice dell'eccezione è diverso da quello da gestire, kernel panic.
 		PANIC();
 	switch (old->reg_a0){
-	case SYS1: /*chiamo la SYS1 per ritornare il tempo passato in questo processo*/
-		countTime();
+	case GETCPUTIME:
+		getTime(old->reg_a1, old->reg_a2, old->reg_a3);
 		break;
-	case SYS3: // se il tipo di chiamata è 3, chiamiamo il gestore deputato, poi lo scheduler
-		terminateProcess();
-		new_time = /*3000-*/getTIMER();
+	case TERMINATEPROCESS: // se il tipo di chiamata è 3, chiamiamo il gestore deputato, poi lo scheduler
+		terminateProcess(old->reg_a1);
+		new_time = (3000 - getTIMER());
 		current->ktp_time += new_time - old_time;
 		current->lkp_time = new_time - old_time;
 		scheduler(&(ready_queue.p_next));
@@ -41,6 +41,10 @@ void syscall_handler(){
 			if (dev < 32 || (dev < 40 && old->reg_a3 == 0)) SYSCALL(PASSEREN,&(keys[dev]),0,0);
 			else SYSCALL(PASSEREN,&(keys[dev+8]),0,0);
 		}while(b == 1);
+	break;
+	case GETPID:
+		getPids(old->reg_a1, old->reg_a2);
+	  break;
 	default: //in ogni altro caso, errore.
 		syscall_error();
 		break;
@@ -67,16 +71,41 @@ void oldarea_pc_increment(){ //utility: affinchè dopo la syscall, il processo c
 	old->pc_epc+=4;
 }
 
-void terminateProcess(){ //Gestore della systeamcall 3.
-	pcb_t *tmp= current;
-	current=NULL;
+void terminateProcess(void **pid){ //Gestore della systeamcall 3.
+	pcb_t *tmp;
+	/*come da SYSCALL3 della phase2 se il pid (suppongo il puntatore e non il suo valore)
+		è zero allora termino il processo corrente*/
+	if (*pid == 0){
+		tmp = current;
+		current = NULL;
+	}
+	else
+		tmp = *pid;
 	recursive_termination(tmp); //Termina il processo corrente e la progenie
 	}
-
 
 void recursive_termination(pcb_t* pcb) {
 	while (!emptyChild(pcb)) //chiamata ricorsiva su tutta la progenie
 		recursive_termination(removeChild(pcb)); //Ogni nodo chiama la funzione sul primo figlio, rimuovendolo già dalla lista dei figli
 	outProcQ(&(ready_queue.p_next), pcb); //nel caso il processo si trovi in ready_queue, viene rimosso (sostanzialmente inutile, ma previsto dalla specifica)
 	freePcb(pcb); // Il pcb viene aggiunto alla lista dei processi liberi.
+}
+void getPids(void ** pid, void ** ppid){
+	if (*pid != NULL)
+		*pid = current;
+	if (*ppid != NULL)
+		*ppid = current->p_parent;
+
+}
+
+void getTime (unsigned int *user, unsigned int *kernel, unsigned int *wallclock){
+	if (user != NULL && kernel != NULL && wallclock != NULL){
+		*user = (current->utp_time/100);
+		*kernel = (current->ktp_time/100);
+		*wallclock = ((*kernel + *user)/100);
+	}
+	else
+	{
+		syscall_error();
+	}
 }
