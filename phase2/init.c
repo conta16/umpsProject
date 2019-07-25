@@ -17,13 +17,11 @@
 #include "utils.h"
 #include "init.h"
 #include "const_rikaya.h"
-pcb_t *tests[TEST_PROCS];
+
+pcb_t *test_pcb;
 pcb_t ready_queue;
 
-
-extern void test1();
-extern void test2();
-extern void test3();
+extern void test();
 
 extern void syscall_handler();
 extern void int_handler();
@@ -51,50 +49,39 @@ void init_areas(){
 	init_area((state_t*)SYSCALL_NEW_AREA, syscall_handler);
 }
 
-void init_pcbs(pcb_t *tests[]){
+void init_pcbs(pcb_t *test_pcb){
 	int i;
-	for (i=0; i<3; i++){
-		/*allocPcb prende un pcb da pcbFree e setta in maniera opportuna tutti i campi tranne quello di stato*/
-
-		tests[i] = allocPcb();
-
-		/*Uso setBit (definito in utils.c) per settare i bit di stato IEc, VMc, TE, KUc*/
-
-		setBit(IEc,&(tests[i]->p_s.status),1);
-		setBit(VMc,&(tests[i]->p_s.status),0);
-		setBit(TE,&(tests[i]->p_s.status),1);
-		setBit(KUc,&(tests[i]->p_s.status),0);
-
-
-		tests[i]->p_s.status|=(127<<8); /*Abilito tutti gli interrupt tranne quelli da terminale (che verrà messo a posto nella prossima fase).
-						E' disabilitato perchè non mandando l'ack dell'interrupt, appena viene caricato il nuovo pcb da scheduler, il controllo viene
-						ancora passato all'interrupt handler e così via*/
-		tests[i]->p_s.status|=(1UL<<0);
-		tests[i]->p_s.status|=(1UL<<2); //LDST() fa un push all'indietro dei bit IE, dunque per settare l'IEc occorre settare anche IEp.
-		tests[i]->p_s.reg_sp = RAMTOP-FRAMESIZE*(i+1);
-		tests[i]->priority = i+1;
-		tests[i]->original_priority= i+1; /*aggiunto il campo original_priority per implementare aging*/
-	}
+	/*allocPcb prende un pcb da pcbFree e setta in maniera opportuna tutti i campi tranne quello di stato*/
+	test_pcb = allocPcb();
+	/*Uso setBit (definito in utils.c) per settare i bit di stato IEc, VMc, TE, KUc*/
+	setBit(IEc,&(test_pcb->p_s.status),1);
+	setBit(VMc,&(test_pcb->p_s.status),0);
+	setBit(TE,&(test_pcb->p_s.status),1);
+	setBit(KUc,&(test_pcb->p_s.status),0);
+	test_pcb->p_s.status|=(127<<8); /*Abilito tutti gli interrupt tranne quelli da terminale (che verrà messo a posto nella prossima fase).
+					E' disabilitato perchè non mandando l'ack dell'interrupt, appena viene caricato il nuovo pcb da scheduler, il controllo viene
+					ancora passato all'interrupt handler e così via*/
+	test_pcb->p_s.status|=(1UL<<0);
+	test_pcb->p_s.status|=(1UL<<2); //LDST() fa un push all'indietro dei bit IE, dunque per settare l'IEc occorre settare anche IEp.
+	test_pcb->p_s.reg_sp = RAMTOP-FRAMESIZE*(i+1);
+	test_pcb->priority = i+1;
+	test_pcb->original_priority= i+1; /*aggiunto il campo original_priority per implementare aging*/
 
 	/*Per ogni pcb, faccio puntare il campo pc a una delle tre funzioni test1, test2 e test3*/
 
-	tests[0]->p_s.pc_epc = (unsigned int) test1;
-	tests[0]->p_s.reg_t9 = tests[0]->p_s.pc_epc;
-	tests[1]->p_s.pc_epc = (unsigned int) test2;
-	tests[1]->p_s.reg_t9 = tests[1]->p_s.pc_epc;
-	tests[2]->p_s.pc_epc = (unsigned int) test3;
-	tests[2]->p_s.reg_t9 = tests[2]->p_s.pc_epc;
+	test_pcb->p_s.pc_epc = (unsigned int) test;
+	test_pcb->p_s.reg_t9 = test_pcb->p_s.pc_epc;
 }
 
 /*Funzione chiamata dal main. Inizializza i pcb e le new area chiamando funzioni che settano i bit di stato e gli altri campi necessari per l'inizializzazione del sistema
 Infine aggiunge, con un ciclo, i pcb alla ready_queue */
 
-void init(pcb_t *ready_queue, pcb_t *tests[]){
+void init(pcb_t *ready_queue, pcb_t *test_pcb){
 	initPcbs();
 	initASL();
 	mkEmptyProcQ(&(ready_queue->p_next));
 	init_areas();
-	init_pcbs(tests);
+	init_pcbs(test_pcb);
 	int i;
-	for (i=0; i<3; i++) insertProcQ(&(ready_queue->p_next), tests[i]);
+	for (i=0; i<3; i++) insertProcQ(&(ready_queue->p_next), test_pcb);
 }

@@ -14,7 +14,6 @@
 
 typedef char word;
 
-extern void addokbuf();
 
 /*input:
 	shift: indica la posizione del bit che si vuole ottenere
@@ -75,7 +74,7 @@ void copyState(state_t* src, state_t* dst){
 }
 
 void tlb_handler(){return;}
-void trap_handler(){addokbuf("trap handler");}
+void trap_handler(){}
 
 unsigned int getClock(){
   long int clock;
