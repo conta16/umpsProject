@@ -27,9 +27,13 @@ typedef struct pcb_t {
 	/* key of the semaphore on which the process is eventually blocked */
 	int			*p_semkey;
 
-	int 		utp_time;  /*tempo totale in user mode*/
-	int 		ktp_time;  /*tempo totale in kernel mode*/
-	int 		lkp_time;  /*tempo totale dell' ultima syscall*/
+	/*TUTTI I TEMPI SONO ESPRESSI IN CICLI DI CLOCK*/
+
+	int			initial_time;  /*tempo di inizio del processo*/
+	int 		last_syscall_time; /*tempo di chiamata dell' ultima syscall. serve a controllare quanto tempo ci passo dentro*/
+	int			middle_time; /*tempo di uscita dell' ultima syscall eseguita dal programma. calcola con questo il tempo in user mode alla prossima syscall*/
+	int			total_time_user; /*tempo totale passato in user mode*/
+	int			total_time_kernel; /*tempo totale passato in kernel mode*/
 } pcb_t;
 
 

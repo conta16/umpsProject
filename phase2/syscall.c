@@ -4,6 +4,8 @@
 #include "utils.h"
 #include "pcb.h"
 
+
+
 extern pcb_t* current;
 extern pcb_t ready_queue;
 extern void adderrbuf();
@@ -14,34 +16,17 @@ void syscall_handler(){
 	int new_time;
 	state_t* old=(state_t*)SYSCALL_OLD_AREA; //old punta all'old-area
 
-	if (getExcCode()!=8) //se il codice dell'eccezione è diverso da quello da gestire, kernel panic.
-		PANIC();
 	switch (old->reg_a0){
 	case GETCPUTIME:
 		getTime(old->reg_a1, old->reg_a2, old->reg_a3);
 		break;
 	case TERMINATEPROCESS: // se il tipo di chiamata è 3, chiamiamo il gestore deputato, poi lo scheduler
 		terminateProcess(old->reg_a1);
-		new_time = (3000 - getTIMER());
-		current->ktp_time += new_time - old_time;
-		current->lkp_time = new_time - old_time;
 		scheduler(&(ready_queue.p_next));
 		break;
 	case IOCOMMAND:
-		int dev = check_terminal(old->reg_a2);
-		if (dev < 32)
-			old->reg_a2->command = old->reg_a1;
-		else
-			if (old->reg_a3 == 0)
-				old->reg_a2->transm_command = old->reg_a1;
-			else
-				old->reg_a2->recv_command = old->reg_a1;
-		do{
-			int b = insertBlocked(&(keys[dev]),current);
-			if (dev < 32 || (dev < 40 && old->reg_a3 == 0)) SYSCALL(PASSEREN,&(keys[dev]),0,0);
-			else SYSCALL(PASSEREN,&(keys[dev+8]),0,0);
-		}while(b == 1);
-	break;
+		ioCommand(old->reg_a1, old->reg_a2, old->reg_a3);
+		break;
 	case GETPID:
 		getPids(old->reg_a1, old->reg_a2);
 	  break;
@@ -108,4 +93,20 @@ void getTime (unsigned int *user, unsigned int *kernel, unsigned int *wallclock)
 	{
 		syscall_error();
 	}
+}
+int ioCommand(unsigned int command, unsigned int *register, int type){
+	int dev = check_terminal(register);
+	if (dev < 32)
+		register->command = command;
+	else
+		if (type == 0)
+			register->transm_command = command;
+		else
+			register->recv_command = command;
+	do{
+		int b = insertBlocked(&(keys[dev]),current);
+		if (dev < 32 || (dev < 40 && type == 0)) SYSCALL(PASSEREN,&(keys[dev]),0,0);
+		else SYSCALL(PASSEREN,&(keys[dev+8]),0,0);
+	}while(b == 1);
+
 }

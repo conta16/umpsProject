@@ -16,12 +16,16 @@
 #include <umps/libumps.h>
 #include "pcb.h"
 
+
+#define CLOCK_HIGH 0x1000.0018 /* da inizializzare bene. non dovrebbero stare qua, poco elegante*/
+#define CLOCK_LOW  0x1000.001c /* da inizializzare bene. non dovrebbero stare qua, poco elegante*/
+
+
 pcb_t* current;
 extern void log_process_order();
 
 void scheduler(struct list_head* head){
 	if (current!=NULL){
-		current->utp_time += /*3000-*/getTIMER() - lkp_time;
 		current->priority = current->original_priority;/*se il processore ha un processo ne riaggiorniamo la priorità, settandola a quella originale*/
 		increment_pcbs_priority(head);/*effettuiamo l' aging su tutti gli altri processi*/
 		insertProcQ(head,current);/*reinseriamo il processo corrente nella coda dei processi*/
