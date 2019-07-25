@@ -30,12 +30,13 @@ void syscall_handler(){
 	case IOCOMMAND:
 		ioCommand(old->reg_a1, old->reg_a2, old->reg_a3);
 		break;
-	case GETPID:
-		getPids(old->reg_a1, old->reg_a2);
-	  break;
 	case SETTUTOR:
 		setTutor();
 		break;
+	case GETPID:
+		getPids(old->reg_a1, old->reg_a2);
+	  break;
+
 	default: //in ogni altro caso, errore.
 		syscall_error();
 		break;
@@ -112,4 +113,36 @@ int createProcess( state_t *statep, int priority, void ** cpid){
 void setTutor(){
 		current->tutor = 1;
 	}
+	int get_process(void **pid, struct list_head children){
+        struct list_head *tmp;
+        list_for_each(tmp,&children){
+                if (container_of(tmp,pcb_t,p_sib) == pid) return 0;
+                if (!emptyChild(tmp)) get_process(pid,tmp->p_child);
+        }
+        return -1;
+}
+
+void kill_proc(void **pid){
+        struct list_head *tmp;
+        struct list_head children = pid->p_child;
+        pcb_t* tutor = find_tutor(pid);
+        freePcb(pid);
+        list_for_each(tmp,&children){
+                insertChild(tutor,tmp);
+        }
+}
+
+pcb_t* find_tutor(void **pid){
+        if (pid->p_parent == NULL) return pid; /se ammazzi la radice dell'albero genealogico, sono problemi/
+        if (pid->tutor == 1) return pid;
+        else find_tutor(pid->p_parent);
+}
+void terminateProcess(void **pid){
+        if (pid != 0 || pid != NULL){
+                if (get_process(pid,current->p_child) == -1) return -1;
+                kill_proc(pid);
+        }
+        else kill_proc(current);
+        return 0;
+}
 }
