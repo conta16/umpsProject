@@ -17,11 +17,11 @@
 #include "utils.h"
 
 pcb_t ready_queue;
-pcb_t *tests[TEST_PROCS];
+pcb_t *test_pcb;
 
 int main(void)
 {
-	init(&ready_queue, tests);
+	init(&ready_queue, test_pcb);
 	scheduler(&(ready_queue.p_next));
 	HALT();
 }
