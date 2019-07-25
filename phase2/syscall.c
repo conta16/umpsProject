@@ -69,7 +69,6 @@ void getPids(void ** pid, void ** ppid){
 		*pid = current;
 	if (*ppid != NULL)
 		*ppid = current->p_parent;
-
 }
 
 void getTime (unsigned int *user, unsigned int *kernel, unsigned int *wallclock){

@@ -78,7 +78,7 @@ void tlb_handler(){return;}
 void trap_handler(){addokbuf("trap handler");}
 
 unsigned int getClock(){
-  int clock;
-  clock = SYSCALL(IOCOMMAND,0,CLOCK_LOW,0);
+  long int clock;
+  clock = *CLOCK_HIGH;
   return clock;
 }
