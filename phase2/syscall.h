@@ -5,7 +5,6 @@
 
 void syscall_handler();
 void syscall_error();
-void terminateProcess();
 void oldarea_pc_increment();
 void getPids();
 void getTime();
@@ -14,7 +13,7 @@ int createProcess();
 void setTutor();
 void kill_proc();
 pcb_t* find_tutor();
-void terminateProcess();
+int terminateProcess(void **pid);
 
 
 #endif

@@ -25,7 +25,7 @@ void syscall_handler(){
 		createProcess(old->reg_a1, old->reg_a2, old->reg_a3);
 		break;
 	case TERMINATEPROCESS: // se il tipo di chiamata è 3, chiamiamo il gestore deputato, poi lo scheduler
-		terminateProcess(old->reg_a1);
+		terminateProcess((void **)(old->reg_a1));
 		scheduler(&(ready_queue.p_next));
 		break;
 	case WAITIO:
@@ -98,8 +98,8 @@ unsigned int ioCommand(unsigned int command, unsigned int *ourReg, int type){
 	do{
 		b = insertBlocked((int *)&(keys[dev]),current);
 		if(b == 0){
-			if (dev < 32 || (dev < 40 && type == 0)) SYSCALL(PASSEREN,&(keys[dev]),0,0);
-			else SYSCALL(PASSEREN,&(keys[dev+8]),0,0);
+			if (dev < 32 || (dev < 40 && type == 0)) SYSCALL(PASSEREN,(unsigned int)&(keys[dev]),0,0);
+			else SYSCALL(PASSEREN,(unsigned int)&(keys[dev+8]),0,0);
 		}
 	}while(b == 1);
 	if (dev < 32) return devreg->status;
@@ -113,42 +113,42 @@ int createProcess( state_t *statep, int priority, void ** cpid){
 	p->p_s = *statep;
 	p->priority = priority;
 	p->original_priority = priority;
-	cpid = &p;
+	cpid = (void **)p; 				/*---------- dubbio --------------*/
 	return 0;
-	}
+}
 void setTutor(){
 		current->tutor = 1;
-	}
-	int get_process(void **pid, struct list_head children){
+}
+int get_process(void **pid, struct list_head children){
         struct list_head *tmp;
         list_for_each(tmp,&children){
-                if (container_of(tmp,pcb_t,p_sib) == pid) return 0;
-                if (!emptyChild(tmp)) get_process(pid,container_of(tmp,pcb_t,p_sib)->p_child);
+                if (container_of(tmp,pcb_t,p_sib) == (pcb_t *)pid) return 0;
+                if (!emptyChild(container_of(tmp,pcb_t,p_sib))) get_process(pid,container_of(tmp,pcb_t,p_sib)->p_child);
         }
         return -1;
 }
 
 void kill_proc(void **pid){
-				pcb_t* proc = (pcb_t*) *pid;
+	pcb_t* proc = (pcb_t*) *pid;
         struct list_head *tmp;
         struct list_head children = proc->p_child;
         pcb_t* tutor = find_tutor(proc);
         freePcb(proc);
         list_for_each(tmp,&children){
-                insertChild(tutor,tmp);
+                insertChild(tutor,container_of(tmp,pcb_t,p_sib));
         }
 }
 
 pcb_t* find_tutor(pcb_t* pid){
         if (pid->p_parent == NULL) return pid;
         if (pid->tutor == 1) return pid;
-        else find_tutor(pid->p_parent);
+        else return find_tutor(pid->p_parent);
 }
-void terminateProcess(void **pid){
+int terminateProcess(void **pid){
         if (pid != 0 || pid != NULL){
                 if (get_process(pid,current->p_child) == -1) return -1;
                 kill_proc(pid);
         }
-        else kill_proc(current);
+        else kill_proc((void **)current);
         return 0;
 }
