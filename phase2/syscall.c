@@ -10,7 +10,6 @@
 
 extern pcb_t* current;
 extern pcb_t ready_queue;
-extern void adderrbuf();
 unsigned int keys[48]; /* da sistemare in posto opportuno e inizializzarlo per bene*/
 
 void syscall_handler(){
@@ -57,7 +56,7 @@ int check_device(unsigned int *reg){
 }
 
 void syscall_error(){
-	adderrbuf("syscallerror");
+	PANIC();
 }
 
 void oldarea_pc_increment(){ //utility: affinchè dopo la syscall, il processo chiamante possap prosegire, occorre incrementare il pc di tale processo. Non ancora utilizzata.
@@ -108,10 +107,14 @@ unsigned int ioCommand(unsigned int command, unsigned int *ourReg, int type){
 	else return termreg->recv_status;
 }
 int createProcess( state_t *statep, int priority, void ** cpid){
+	int i;
 	pcb_t* p = allocPcb();
 	if (p == NULL) return -1;
-		insertChild(current,p);
-	p->p_s = *statep;
+	insertChild(current,p);
+	char *c = (char *)&(p->p_s);
+	char *d = (char *)&(statep);
+        for (i=0; i<sizeof(state_t); i++,c++,d++)	/* Ciclo di scorrimento per copiare il campo statep in p_s*/
+                *c=*d;
 	p->priority = priority;
 	p->original_priority = priority;
 	cpid = (void **)p; 				/*---------- dubbio --------------*/

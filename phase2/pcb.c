@@ -40,7 +40,7 @@ pcb_t* allocPcb(void) {
 		b=(char* )&(first->p_s);
 		for (i=0; i<sizeof(state_t); i++){/* Ciclo di scorrimento per azzerare il campo p_s*/
 			*b=0;
-			i++;
+			b++;
 			}
 		first->priority=0;
 		first->original_priority=0;

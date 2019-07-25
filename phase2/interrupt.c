@@ -63,7 +63,7 @@ extern void int_handler(){
 		scheduler(&(ready_queue.p_next));
 	}
         else if (line == IL_TIMER+8){
-		unsigned int *tmp = INT_TIMER;
+		unsigned int *tmp = (unsigned int *)I_TIMER;
 		*tmp = (unsigned int)-1;
         }
 	else if (line == IL_DISK+8){

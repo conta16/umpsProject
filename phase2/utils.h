@@ -71,6 +71,7 @@
 #define CMD_ACK 1
 #define CMD_TRANSM 2
 #define CMD_RECV 2
+#define I_TIMER 0x10000020
 
 #define CLOCK_HIGH 0x10000018
 #define CLOCK_LOW  0x1000001c
