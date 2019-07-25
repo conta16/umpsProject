@@ -64,7 +64,7 @@ void init_pcbs(pcb_t *test_pcb){
 	test_pcb->p_s.status|=(1UL<<2); //LDST() fa un push all'indietro dei bit IE, dunque per settare l'IEc occorre settare anche IEp.
 	test_pcb->p_s.reg_sp = RAMTOP-FRAMESIZE;
 	test_pcb->priority = 1;
-	test_pcb->original_priority= i+1; /*aggiunto il campo original_priority per implementare aging*/
+	test_pcb->original_priority= 1; /*aggiunto il campo original_priority per implementare aging*/
 
 	/*Per ogni pcb, faccio puntare il campo pc a una delle tre funzioni test1, test2 e test3*/
 
