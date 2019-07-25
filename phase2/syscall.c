@@ -6,6 +6,7 @@
 #include "utils.h"
 #include "const_rikaya.h"
 #include "arch.h"
+#include "asl.h"
 
 extern pcb_t* current;
 extern pcb_t ready_queue;
