@@ -136,4 +136,3 @@ void outChildBlocked(pcb_t *p){
 		outChildBlocked(container_of(tmp, pcb_t, p_sib));
 	}
 }
-
