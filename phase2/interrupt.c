@@ -55,7 +55,7 @@ extern void int_handler(){
 	int line = getLineInt();
 	if (line == IL_IPI+8){
 		/*nessuna azione significativa è associata a questa linea per questa fase: mi limito a mandare l'ack, senza sapere quale processore ha mandato l'interrupt*/
-		unsigned int *tmp = INBOX;
+		unsigned int *tmp = (unsigned int*) INBOX;
 		*tmp = (unsigned int)-1;
 	}
 	else if (line == IL_CPUTIMER+8){
