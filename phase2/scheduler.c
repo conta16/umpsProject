@@ -17,10 +17,6 @@
 #include "pcb.h"
 
 
-#define CLOCK_HIGH 0x1000.0018 /* da inizializzare bene. non dovrebbero stare qua, poco elegante*/
-#define CLOCK_LOW  0x1000.001c /* da inizializzare bene. non dovrebbero stare qua, poco elegante*/
-
-
 pcb_t* current;
 extern void log_process_order();
 
@@ -47,6 +43,10 @@ void scheduler(struct list_head* head){
 void scheduler_init(struct list_head* head){
 	/*questa funzione seleziona il processo con priorità maggiore e lo inserisce nel processore facendo l' aging degli altri nel frattempo*/
 	current=removeProcQ(head);
+	if (current->initial_time != -1)
+		current->initial_time = getClock();
+	if (current->middle_time != -1)
+		current->middle_time = current->initial_time;
 	log_process_order((int)(current->original_priority));
 	increment_pcbs_priority(head);
 	setTIMER(3000);

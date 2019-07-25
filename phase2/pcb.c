@@ -45,11 +45,12 @@ pcb_t* allocPcb(void) {
 		first->priority=0;
 		first->original_priority=0;
 		first->p_semkey=NULL;
-		first->initial_time=0;
-		first->last_syscall_time=0;
-		first->middle_time=0;
+		first->initial_time=-1;
+		first->last_syscall_time;
+		first->middle_time=-1;
 		first->total_time_user=0;
 		first->total_time_kernel=0;
+		first->tutor=0;
 	}
 	return first;
 }

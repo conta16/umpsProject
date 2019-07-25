@@ -76,3 +76,9 @@ void copyState(state_t* src, state_t* dst){
 
 void tlb_handler(){return;}
 void trap_handler(){addokbuf("trap handler");}
+
+unsigned int getClock(){
+  int clock;
+  clock = SYSCALL(IOCOMMAND,0,CLOCK_LOW,0);
+  return clock;
+}

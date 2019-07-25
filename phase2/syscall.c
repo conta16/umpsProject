@@ -12,8 +12,8 @@ extern void adderrbuf();
 unsigned int keys[48]; /* da sistemare in posto opportuno e inizializzarlo per bene*/
 
 void syscall_handler(){
-	int old_time = /*3000-*/getTIMER();
-	int new_time;
+	current->last_syscall_time = getClock();
+	current->total_time_user = (current->last_syscall_time - current->middle_time);
 	state_t* old=(state_t*)SYSCALL_OLD_AREA; //old punta all'old-area
 
 	switch (old->reg_a0){
@@ -33,11 +33,15 @@ void syscall_handler(){
 	case GETPID:
 		getPids(old->reg_a1, old->reg_a2);
 	  break;
+	case SETTUTOR:
+		setTutor();
+		break;
 	default: //in ogni altro caso, errore.
 		syscall_error();
 		break;
 		}
-
+		current->total_time_kernel += (getClock() - current->last_syscall_time);
+		current->middle_time = getClock();
 	}
 
 int check_device(unsigned int *reg){
@@ -60,7 +64,7 @@ void oldarea_pc_increment(){ //utility: affinchè dopo la syscall, il processo c
 }
 
 int terminateProcess(void **pid){ //Gestore della systeamcall 3.
-		
+
 }
 void getPids(void ** pid, void ** ppid){
 	if (*pid != NULL)
@@ -72,9 +76,9 @@ void getPids(void ** pid, void ** ppid){
 
 void getTime (unsigned int *user, unsigned int *kernel, unsigned int *wallclock){
 	if (user != NULL && kernel != NULL && wallclock != NULL){
-		*user = (current->utp_time/100);
-		*kernel = (current->ktp_time/100);
-		*wallclock = ((*kernel + *user)/100);
+		*user = current->total_time_user;
+		*kernel = current->total_time_kernel + (getClock()-current->last_syscall_time);
+		*wallclock = (getClock() - current->initial_time);
 	}
 	else
 	{
@@ -98,11 +102,14 @@ int ioCommand(unsigned int command, unsigned int *register, int type){
 int createProcess( state_t *statep, int priority, void ** cpid){
 	pcb_t* p = allocPcb();
 	if (p == NULL) return -1;
-	insertChild(current,p);
+		insertChild(current,p);
 	p->p_s = statep;
 	p->priority = priority;
 	p->original_priority = priority;
 	cpid = &p;
 	return 0;
-}
+	}
+void setTutor(){
+		current->tutor = 1;
+	}
 }

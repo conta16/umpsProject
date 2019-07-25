@@ -76,6 +76,9 @@
 #define CMD_TRANSM 2
 #define CMD_RECV 2
 
+#define CLOCK_HIGH 0x1000.0018
+#define CLOCK_LOW  0x1000.001c
+
 void tlb_handler(); /*Declaration of handling functions, to be moved in the correct library, when implemented*/
 void trap_handler();
 
@@ -83,5 +86,6 @@ void copyState (state_t *src, state_t *dst);
 int getBit (int shift, unsigned int reg);
 int setBit();
 unsigned int getExcCode();
+unsigned int getClock();
 
 #endif

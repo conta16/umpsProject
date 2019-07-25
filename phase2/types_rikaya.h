@@ -34,6 +34,9 @@ typedef struct pcb_t {
 	int			middle_time; /*tempo di uscita dell' ultima syscall eseguita dal programma. calcola con questo il tempo in user mode alla prossima syscall*/
 	int			total_time_user; /*tempo totale passato in user mode*/
 	int			total_time_kernel; /*tempo totale passato in kernel mode*/
+
+
+	int tutor;
 } pcb_t;
 
 
