@@ -3,6 +3,7 @@
 #include "scheduler.h"
 #include "utils.h"
 #include "pcb.h"
+#include "const_rikaya.h"
 
 
 
@@ -27,7 +28,7 @@ void syscall_handler(){
 		terminateProcess(old->reg_a1);
 		scheduler(&(ready_queue.p_next));
 		break;
-	case IOCOMMAND:
+	case WAITIO:
 		ioCommand(old->reg_a1, old->reg_a2, old->reg_a3);
 		break;
 	case SETTUTOR:

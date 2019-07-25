@@ -2,4 +2,3 @@ Members:
 	- Simone Branchetti		simone.branchetti2@studio.unibo.it
 	- Davide Davoli                 davide.davoli4@studio.unibo.it
 	- Michele Luca Contalbo         micheleluca.contalbo@studio.unibo.it
-

@@ -79,6 +79,6 @@ void trap_handler(){addokbuf("trap handler");}
 
 unsigned int getClock(){
   long int clock;
-  clock = *CLOCK_HIGH;
+  clock = *((int*)(CLOCK_HIGH));
   return clock;
 }
