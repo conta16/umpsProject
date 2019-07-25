@@ -17,12 +17,8 @@
 #define SYSCALL_OLD_AREA 0x20000348
 
 #define TEST_PROCS 3
-#define RAMBASE *((unsigned int *)0x10000000)
-#define RAMSIZE *((unsigned int *)0x10000004)
-#define RAMTOP (RAMBASE + RAMSIZE)
 
 #define SYS3 3
-#define INT_TIMER 0x10000020
 
 #define IEc 0
 #define KUc 1
