@@ -20,6 +20,9 @@ void syscall_handler(){
 	case GETCPUTIME:
 		getTime(old->reg_a1, old->reg_a2, old->reg_a3);
 		break;
+	case CREATEPROCESS:
+		createProcess(old->reg_a1, old->reg_a2, old->reg_a3);
+		break;
 	case TERMINATEPROCESS: // se il tipo di chiamata è 3, chiamiamo il gestore deputato, poi lo scheduler
 		terminateProcess(old->reg_a1);
 		scheduler(&(ready_queue.p_next));
@@ -56,24 +59,8 @@ void oldarea_pc_increment(){ //utility: affinchè dopo la syscall, il processo c
 	old->pc_epc+=4;
 }
 
-void terminateProcess(void **pid){ //Gestore della systeamcall 3.
-	pcb_t *tmp;
-	/*come da SYSCALL3 della phase2 se il pid (suppongo il puntatore e non il suo valore)
-		è zero allora termino il processo corrente*/
-	if (*pid == 0){
-		tmp = current;
-		current = NULL;
-	}
-	else
-		tmp = *pid;
-	recursive_termination(tmp); //Termina il processo corrente e la progenie
-	}
-
-void recursive_termination(pcb_t* pcb) {
-	while (!emptyChild(pcb)) //chiamata ricorsiva su tutta la progenie
-		recursive_termination(removeChild(pcb)); //Ogni nodo chiama la funzione sul primo figlio, rimuovendolo già dalla lista dei figli
-	outProcQ(&(ready_queue.p_next), pcb); //nel caso il processo si trovi in ready_queue, viene rimosso (sostanzialmente inutile, ma previsto dalla specifica)
-	freePcb(pcb); // Il pcb viene aggiunto alla lista dei processi liberi.
+int terminateProcess(void **pid){ //Gestore della systeamcall 3.
+		
 }
 void getPids(void ** pid, void ** ppid){
 	if (*pid != NULL)
@@ -108,5 +95,14 @@ int ioCommand(unsigned int command, unsigned int *register, int type){
 		if (dev < 32 || (dev < 40 && type == 0)) SYSCALL(PASSEREN,&(keys[dev]),0,0);
 		else SYSCALL(PASSEREN,&(keys[dev+8]),0,0);
 	}while(b == 1);
-
+int createProcess( state_t *statep, int priority, void ** cpid){
+	pcb_t* p = allocPcb();
+	if (p == NULL) return -1;
+	insertChild(current,p);
+	p->p_s = statep;
+	p->priority = priority;
+	p->original_priority = priority;
+	cpid = &p;
+	return 0;
+}
 }
