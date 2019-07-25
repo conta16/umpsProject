@@ -1,6 +1,7 @@
 #ifndef SYSCALL_H
 #define SYSCALL_H
 
+#include "pcb.h"
 
 void syscall_handler();
 void syscall_error();

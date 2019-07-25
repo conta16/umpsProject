@@ -1,10 +1,9 @@
 #include <umps/libumps.h>
+#include "pcb.h"
 #include "syscall.h"
 #include "scheduler.h"
 #include "utils.h"
-#include "pcb.h"
 #include "const_rikaya.h"
-
 
 
 extern pcb_t* current;
@@ -83,17 +82,20 @@ void getTime (unsigned int *user, unsigned int *kernel, unsigned int *wallclock)
 		syscall_error();
 	}
 }
-int ioCommand(unsigned int command, unsigned int *register, int type){
-	int dev = check_terminal(register);
+int ioCommand(unsigned int command, unsigned int *ourReg, int type){
+	dtpreg_t* devreg = (dtpreg_t*) ourReg;
+	termreg_t* termreg = (termreg_t*) ourReg;
+	int dev = check_device(ourReg);
 	if (dev < 32)
-		register->command = command;
+		devreg->command = command;
 	else
 		if (type == 0)
-			register->transm_command = command;
+			termreg->transm_command = command;
 		else
-			register->recv_command = command;
+			termreg->recv_command = command;
+	int b;
 	do{
-		int b = insertBlocked(&(keys[dev]),current);
+		b = insertBlocked(&(keys[dev]),current);
 		if(b == 0){
 			if (dev < 32 || (dev < 40 && type == 0)) SYSCALL(PASSEREN,&(keys[dev]),0,0);
 			else SYSCALL(PASSEREN,&(keys[dev+8]),0,0);
@@ -104,7 +106,7 @@ int createProcess( state_t *statep, int priority, void ** cpid){
 	pcb_t* p = allocPcb();
 	if (p == NULL) return -1;
 		insertChild(current,p);
-	p->p_s = statep;
+	p->p_s = *statep;
 	p->priority = priority;
 	p->original_priority = priority;
 	cpid = &p;
@@ -117,7 +119,7 @@ void setTutor(){
         struct list_head *tmp;
         list_for_each(tmp,&children){
                 if (container_of(tmp,pcb_t,p_sib) == pid) return 0;
-                if (!emptyChild(tmp)) get_process(pid,tmp->p_child);
+                if (!emptyChild(tmp)) get_process(pid,container_of(tmp,pcb_t,p_sib)->p_child);
         }
         return -1;
 }
@@ -133,7 +135,7 @@ void kill_proc(void **pid){
 }
 
 pcb_t* find_tutor(void **pid){
-        if (pid->p_parent == NULL) return pid; /se ammazzi la radice dell'albero genealogico, sono problemi/
+        if (pid->p_parent == NULL) return pid; 
         if (pid->tutor == 1) return pid;
         else find_tutor(pid->p_parent);
 }
@@ -144,5 +146,4 @@ void terminateProcess(void **pid){
         }
         else kill_proc(current);
         return 0;
-}
 }
