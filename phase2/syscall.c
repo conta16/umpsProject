@@ -100,6 +100,7 @@ int ioCommand(unsigned int command, unsigned int *register, int type){
 		if (dev < 32 || (dev < 40 && type == 0)) SYSCALL(PASSEREN,&(keys[dev]),0,0);
 		else SYSCALL(PASSEREN,&(keys[dev+8]),0,0);
 	}while(b == 1);
+}
 int createProcess( state_t *statep, int priority, void ** cpid){
 	pcb_t* p = allocPcb();
 	if (p == NULL) return -1;
