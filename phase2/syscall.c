@@ -64,9 +64,6 @@ void oldarea_pc_increment(){ //utility: affinchè dopo la syscall, il processo c
 	old->pc_epc+=4;
 }
 
-int terminateProcess(void **pid){ //Gestore della systeamcall 3.
-
-}
 void getPids(void ** pid, void ** ppid){
 	if (*pid != NULL)
 		*pid = current;
