@@ -125,17 +125,18 @@ void setTutor(){
 }
 
 void kill_proc(void **pid){
+				pcb_t* proc = (pcb_t*) *pid;
         struct list_head *tmp;
-        struct list_head children = pid->p_child;
-        pcb_t* tutor = find_tutor(pid);
-        freePcb(pid);
+        struct list_head children = proc->p_child;
+        pcb_t* tutor = find_tutor(proc);
+        freePcb(proc);
         list_for_each(tmp,&children){
                 insertChild(tutor,tmp);
         }
 }
 
-pcb_t* find_tutor(void **pid){
-        if (pid->p_parent == NULL) return pid; 
+pcb_t* find_tutor(pcb_t* pid){
+        if (pid->p_parent == NULL) return pid;
         if (pid->tutor == 1) return pid;
         else find_tutor(pid->p_parent);
 }

@@ -10,6 +10,7 @@
 
 
 #include "types_rikaya.h"
+#include "const_rikaya.h"
 #include "const.h"
 #include "utils.h"
 #include "interrupt.h"
