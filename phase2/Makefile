@@ -12,7 +12,7 @@ all : kernel.core.umps
 kernel.core.umps : kernel
 	umps2-elf2umps -k kernel
 
-kernel : asl.o pcb.o utils.o p1.5test_rikaya_v0.o init.o syscall.o scheduler.o interrupt.o main.o
+kernel : asl.o pcb.o utils.o p2test_rikaya_v0.2.o init.o syscall.o scheduler.o interrupt.o main.o
 	$(LD) -o kernel $^ $(UMPS2_DIRECTORY)/lib/umps2/crtso.o $(UMPS2_DIRECTORY)/lib/umps2/libumps.o -nostdlib -T $(UMPS2_DIRECTORY)/share/umps2/umpscore.ldscript
 
 clean :
