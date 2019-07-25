@@ -9,7 +9,7 @@ void terminateProcess();
 void oldarea_pc_increment();
 void getPids();
 void getTime();
-int ioCommand();
+unsigned int ioCommand();
 int createProcess();
 void setTutor();
 void kill_proc();

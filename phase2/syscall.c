@@ -1,5 +1,6 @@
 #include <umps/libumps.h>
 #include "pcb.h"
+#include "asl.h"
 #include "syscall.h"
 #include "scheduler.h"
 #include "utils.h"
@@ -45,11 +46,11 @@ void syscall_handler(){
 		current->middle_time = getClock();
 	}
 
-int check_device(unsigned int reg){
+int check_device(unsigned int *reg){
 	int i,dev;
 	for (dev=3; dev<8; dev++)
 		for (i=0; i<8; i++)
-			if (DEV_REG_ADDR(dev,i) == reg)
+			if (DEV_REG_ADDR(dev,i) == (unsigned int)reg)
 				return i+((dev-3)*8);
 	return -1;
 }
@@ -82,7 +83,7 @@ void getTime (unsigned int *user, unsigned int *kernel, unsigned int *wallclock)
 		syscall_error();
 	}
 }
-int ioCommand(unsigned int command, unsigned int *ourReg, int type){
+unsigned int ioCommand(unsigned int command, unsigned int *ourReg, int type){
 	dtpreg_t* devreg = (dtpreg_t*) ourReg;
 	termreg_t* termreg = (termreg_t*) ourReg;
 	int dev = check_device(ourReg);
@@ -95,12 +96,15 @@ int ioCommand(unsigned int command, unsigned int *ourReg, int type){
 			termreg->recv_command = command;
 	int b;
 	do{
-		b = insertBlocked(&(keys[dev]),current);
+		b = insertBlocked((int *)&(keys[dev]),current);
 		if(b == 0){
 			if (dev < 32 || (dev < 40 && type == 0)) SYSCALL(PASSEREN,&(keys[dev]),0,0);
 			else SYSCALL(PASSEREN,&(keys[dev+8]),0,0);
 		}
 	}while(b == 1);
+	if (dev < 32) return devreg->status;
+	else if (type == 0) return termreg->transm_status;
+	else return termreg->recv_status;
 }
 int createProcess( state_t *statep, int priority, void ** cpid){
 	pcb_t* p = allocPcb();
