@@ -16,7 +16,7 @@
 #include "asl.h"
 #include "utils.h"
 #include "init.h"
-
+#include "const_rikaya.h"
 pcb_t *tests[TEST_PROCS];
 pcb_t ready_queue;
 
