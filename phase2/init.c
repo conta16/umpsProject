@@ -18,11 +18,9 @@
 #include "init.h"
 #include "const_rikaya.h"
 
-pcb_t *test_pcb;
-pcb_t ready_queue;
 
 extern void test();
-
+extern pcb_t* test_pcb;
 extern void syscall_handler();
 extern void int_handler();
 
@@ -49,7 +47,7 @@ void init_areas(){
 	init_area((state_t*)SYSCALL_NEW_AREA, syscall_handler);
 }
 
-void init_pcbs(pcb_t *test_pcb){
+void init_pcbs(){
 	/*allocPcb prende un pcb da pcbFree e setta in maniera opportuna tutti i campi tranne quello di stato*/
 	test_pcb = allocPcb();
 	/*Uso setBit (definito in utils.c) per settare i bit di stato IEc, VMc, TE, KUc*/
@@ -57,7 +55,7 @@ void init_pcbs(pcb_t *test_pcb){
 	setBit(VMc,&(test_pcb->p_s.status),0);
 	setBit(TE,&(test_pcb->p_s.status),1);
 	setBit(KUc,&(test_pcb->p_s.status),0);
-	test_pcb->p_s.status|=(127<<8); /*Abilito tutti gli interrupt tranne quelli da terminale (che verrà messo a posto nella prossima fase).
+	test_pcb->p_s.status|=(255<<8); /*Abilito tutti gli interrupt tranne quelli da terminale (che verrà messo a posto nella prossima fase).
 					E' disabilitato perchè non mandando l'ack dell'interrupt, appena viene caricato il nuovo pcb da scheduler, il controllo viene
 					ancora passato all'interrupt handler e così via*/
 	test_pcb->p_s.status|=(1UL<<0);
@@ -75,12 +73,11 @@ void init_pcbs(pcb_t *test_pcb){
 /*Funzione chiamata dal main. Inizializza i pcb e le new area chiamando funzioni che settano i bit di stato e gli altri campi necessari per l'inizializzazione del sistema
 Infine aggiunge, con un ciclo, i pcb alla ready_queue */
 
-void init(pcb_t *ready_queue, pcb_t *test_pcb){
+void init(pcb_t *ready_queue){
 	initPcbs();
 	initASL();
 	mkEmptyProcQ(&(ready_queue->p_next));
 	init_areas();
-	init_pcbs(test_pcb);
-	int i;
-	for (i=0; i<3; i++) insertProcQ(&(ready_queue->p_next), test_pcb);
+	init_pcbs();
+	insertProcQ(&(ready_queue->p_next), test_pcb);
 }

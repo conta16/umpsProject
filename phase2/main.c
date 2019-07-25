@@ -21,7 +21,7 @@ pcb_t *test_pcb;
 
 int main(void)
 {
-	init(&ready_queue, test_pcb);
+	init(&ready_queue);
 	scheduler(&(ready_queue.p_next));
 	HALT();
 }
