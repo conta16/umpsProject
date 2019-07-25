@@ -4,7 +4,7 @@
 #include "scheduler.h"
 #include "utils.h"
 #include "const_rikaya.h"
-
+#include "arch.h"
 
 extern pcb_t* current;
 extern pcb_t ready_queue;
@@ -45,7 +45,7 @@ void syscall_handler(){
 		current->middle_time = getClock();
 	}
 
-int check_device(unsigned int *reg){
+int check_device(unsigned int reg){
 	int i,dev;
 	for (dev=3; dev<8; dev++)
 		for (i=0; i<8; i++)
