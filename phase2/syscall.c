@@ -15,11 +15,15 @@ extern pcb_t waiting_queue;
 
 unsigned int keys[48]; /* da sistemare in posto opportuno e inizializzarlo per bene*/
 
+static short int spec_assigned[3];
+
+static state_t* sysbk_old, tlb_old, pgmtrap_old;
+static state_t* sysbk_new, tlb_new, pgmtrap_new;
+
 void syscall_handler(){
 	current->last_syscall_time = getClock();
 	current->total_time_user = (current->last_syscall_time - current->middle_time);
 	state_t* old=(state_t*)SYSCALL_OLD_AREA; //old punta all'old-area
-
 	switch (old->reg_a0){
 	case GETCPUTIME:
 		getTime(old->reg_a1, old->reg_a2, old->reg_a3);
@@ -46,6 +50,8 @@ void syscall_handler(){
 	case PASSEREN:
 		passeren(old->reg_a1);
 		break;
+	case SPECPASSUP:
+		specpassup (old->reg_a1, old->reg_a1, old->reg_a2, old->reg_a3);
 	default: //in ogni altro caso, errore.
 		syscall_error();
 		break;
@@ -175,11 +181,33 @@ void verhogen(int* semaddr) {
 	}
 }
 void passeren(int* semaddr){
-		*semaddr--;
+		*semaddr-=1;
 		if (*semaddr<0){
 			insertBlocked(semaddr, current);
 			outProcQ(&(ready_queue.p_next), current);
 			insertProcQ(&(blocked_queue.p_next), current);
 			scheduler_init(&(ready_queue.p_next));
 		}
+}
+
+void specpassup(int type, state_t* old state_t* new){
+	if(spec_assigned[type]){
+		return -1;
+	}
+	spec_assigned[type]=1;
+	switch (type) {
+		case 0:
+			sysbk_old=old;
+			sysbk_new=new;
+			break;
+		case 1;
+			tlb_old=old;
+			tlb_new=new;
+			break;
+		case 2;
+			pgmtrap_old=old;
+			pgmtrap_new=new;
+			break;
+	}
+	return 0;
 }

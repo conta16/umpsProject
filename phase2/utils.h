@@ -6,20 +6,6 @@
 
 #define CMD_ACK 1
 
-#define INT_NEW_AREA 0x2000008C
-#define TLB_NEW_AREA 0x200001A4
-#define TRAP_NEW_AREA 0x200002BC
-#define SYSCALL_NEW_AREA 0x200003D4
-
-#define INT_OLD_AREA 0x20000000
-#define TLB_OLD_AREA 0x20000118
-#define TRAP_OLD_AREA 0x20000230
-#define SYSCALL_OLD_AREA 0x20000348
-
-#define TEST_PROCS 3
-
-#define SYS3 3
-
 #define IEc 0
 #define KUc 1
 #define IEp 2

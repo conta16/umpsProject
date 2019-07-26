@@ -73,9 +73,6 @@ void copyState(state_t* src, state_t* dst){
 
 }
 
-void tlb_handler(){return;}
-void trap_handler(){return;}
-
 unsigned int getClock(){
   long int clock;
   clock = *((int*)(CLOCK_HIGH));
