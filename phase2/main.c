@@ -17,7 +17,7 @@
 #include "utils.h"
 
 pcb_t ready_queue;
-
+pcb_t blocked_queue;
 pcb_t *test_pcb;
 
 int main(void)
