@@ -14,6 +14,8 @@ void setTutor();
 void kill_proc();
 pcb_t* find_tutor();
 int terminateProcess(void **pid);
+void verhogen();
+void passeren();
 
 
 #endif

@@ -10,6 +10,9 @@
 
 extern pcb_t* current;
 extern pcb_t ready_queue;
+extern pcb_t blocked_queue;
+extern pcb_t waiting_queue;
+
 unsigned int keys[48]; /* da sistemare in posto opportuno e inizializzarlo per bene*/
 
 void syscall_handler(){
@@ -39,6 +42,9 @@ void syscall_handler(){
 	  break;
 	case VERHOGEN:
 		verhogen(old->reg_a1);
+		break;
+	case PASSEREN:
+		passeren(old->reg_a1);
 		break;
 	default: //in ogni altro caso, errore.
 		syscall_error();
@@ -163,13 +169,17 @@ void verhogen(int* semaddr) {
 	if (*semaddr>=0)
 		*semaddr+=1;
 	else{
-
+		pcb_t* tmp=removeBlocked(semaddr);
+		if (tmp!=NULL)
+			insertProcQ(&(ready_queue.p_next), tmp);
 	}
 }
 void passeren(int* semaddr){
 		*semaddr--;
 		if (*semaddr<0){
 			insertBlocked(semaddr, current);
-
+			outProcQ(&(ready_queue.p_next), current);
+			insertProcQ(&(blocked_queue.p_next), current);
+			scheduler_init(&(ready_queue.p_next));
 		}
 }

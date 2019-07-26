@@ -77,6 +77,7 @@ void init(pcb_t *ready_queue){
 	initPcbs();
 	initASL();
 	mkEmptyProcQ(&(ready_queue->p_next));
+	mkEmptyProcQ(&(blocked_queue->p_next));
 	init_areas();
 	init_pcbs();
 	insertProcQ(&(ready_queue->p_next), test_pcb);
