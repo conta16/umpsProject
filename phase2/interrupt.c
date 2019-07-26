@@ -51,7 +51,7 @@ extern void int_handler(){
 	int i;
 	dtpreg_t* dev_register;
 	termreg_t* term_register;
-	copyState((state_t *)INT_OLD_AREA, &(current->p_s)); /*funzione definita in utils.c, copia lo stato dell'old area e lo mette in current, che è il puntatore all'ultimo pcb scelto dallo scheduler*/
+	copyState((state_t *)INT_OLDAREA, &(current->p_s)); /*funzione definita in utils.c, copia lo stato dell'old area e lo mette in current, che è il puntatore all'ultimo pcb scelto dallo scheduler*/
 	int line = getLineInt();
 	if (line == IL_IPI+8){
 		/*nessuna azione significativa è associata a questa linea per questa fase: mi limito a mandare l'ack, senza sapere quale processore ha mandato l'interrupt*/

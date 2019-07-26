@@ -18,7 +18,6 @@
 #include "init.h"
 #include "const_rikaya.h"
 
-
 extern void test();
 extern pcb_t* test_pcb;
 extern void syscall_handler();
@@ -26,7 +25,7 @@ extern void int_handler();
 extern pcb_t blocked_queue;
 extern void tlb_handler();
 extern void sysbk_handler();
-extern void pgm_handler();
+extern void pgmtrap_handler();
 
 void init_area(state_t* newarea, void (*handler)()){
 
@@ -45,11 +44,10 @@ void init_area(state_t* newarea, void (*handler)()){
 }
 
 void init_areas(){
-	init_area((state_t*)INT_NEW_AREA, int_handler);
-	init_area((state_t*)SYSCALL_NEW_AREA, syscall_handler);
+	init_area((state_t*)INT_NEWAREA, int_handler);
+	init_area((state_t*)SYSBK_NEWAREA, syscall_handler);
 	init_area((state_t*)TLB_NEWAREA, tlb_handler);
 	init_area((state_t*)PGMTRAP_NEWAREA, pgmtrap_handler);
-	init_area((state_t*)SYSBK_NEWAREA, sysbk_handler);
 }
 
 void init_pcbs(){

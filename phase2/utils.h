@@ -62,9 +62,6 @@
 #define CLOCK_HIGH 0x10000018
 #define CLOCK_LOW  0x1000001c
 
-void tlb_handler(); /*Declaration of handling functions, to be moved in the correct library, when implemented*/
-void trap_handler();
-
 void copyState (state_t *src, state_t *dst);
 int getBit (int shift, unsigned int reg);
 int setBit();

@@ -15,15 +15,15 @@ extern pcb_t waiting_queue;
 
 unsigned int keys[48]; /* da sistemare in posto opportuno e inizializzarlo per bene*/
 
-static short int spec_assigned[3];
+short int spec_assigned[3];
 
-static state_t* sysbk_old, tlb_old, pgmtrap_old;
-static state_t* sysbk_new, tlb_new, pgmtrap_new;
+state_t *sysbk_old, *tlb_old, *pgmtrap_old;
+state_t *sysbk_new, *tlb_new, *pgmtrap_new;
 
 void syscall_handler(){
 	current->last_syscall_time = getClock();
 	current->total_time_user = (current->last_syscall_time - current->middle_time);
-	state_t* old=(state_t*)SYSCALL_OLD_AREA; //old punta all'old-area
+	state_t* old=(state_t*)SYSBK_OLDAREA; //old punta all'old-area
 	switch (old->reg_a0){
 	case GETCPUTIME:
 		getTime(old->reg_a1, old->reg_a2, old->reg_a3);
@@ -74,7 +74,7 @@ void syscall_error(){
 }
 
 void oldarea_pc_increment(){ //utility: affinchè dopo la syscall, il processo chiamante possap prosegire, occorre incrementare il pc di tale processo. Non ancora utilizzata.
-	state_t* old=(state_t*)SYSCALL_OLD_AREA;
+	state_t* old=(state_t*)SYSBK_OLDAREA;
 	old->reg_t9+=4; //per regioni architetturali, un incremento di pc non è valideo se non viene anche incrementato t9.
 	old->pc_epc+=4;
 }
@@ -190,7 +190,7 @@ void passeren(int* semaddr){
 		}
 }
 
-void specpassup(int type, state_t* old state_t* new){
+int specpassup(int type, state_t* old, state_t* new){
 	if(spec_assigned[type]){
 		return -1;
 	}
@@ -200,11 +200,11 @@ void specpassup(int type, state_t* old state_t* new){
 			sysbk_old=old;
 			sysbk_new=new;
 			break;
-		case 1;
+		case 1:
 			tlb_old=old;
 			tlb_new=new;
 			break;
-		case 2;
+		case 2:
 			pgmtrap_old=old;
 			pgmtrap_new=new;
 			break;

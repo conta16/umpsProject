@@ -1,7 +1,7 @@
 #ifndef HANDLERS_H
 #define HANDLERS_H
-void sysbk_handler(){
-  
-}
+void tlb_handler();
+void pgmtrap_handler();
+void sysbk_handler();
 
 #endif
