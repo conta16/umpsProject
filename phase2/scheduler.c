@@ -8,7 +8,6 @@
     You should have received a copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>
 */
 
-
 #include "scheduler.h"
 #include "listx.h"
 #include "types_rikaya.h"
@@ -25,7 +24,7 @@ void scheduler(struct list_head* head){
 		increment_pcbs_priority(head);/*effettuiamo l' aging su tutti gli altri processi*/
 		insertProcQ(head,current);/*reinseriamo il processo corrente nella coda dei processi*/
 		current=removeProcQ(head);/*scegliamo un altro processo da eseguire usando le funzioni di pcb.c*/
-		setTIMER(3000);/*aggiorniamo il time-slice*/
+		setTIMER((3000*TIME_SCALE));/*aggiorniamo il time-slice*/
 		LDST(&(current->p_s));/*carichiamo il processo nel processore*/
 	}
 	else{
@@ -46,15 +45,17 @@ void scheduler_init(struct list_head* head){
 	if (current->middle_time != -1)
 		current->middle_time = current->initial_time;
 	increment_pcbs_priority(head);
-	setTIMER(3000);
+	setTIMER((3000*TIME_SCALE));
 	setSTATUS(getSTATUS()|1);/*impostiamo lo stato del processore*/
 	LDST(&(current->p_s));
 }
 
 void increment_pcbs_priority(struct list_head* head){
+	if (head != NULL){
 	/*scorriamo la lista e incrementiamo la priorità di ogni processo presente (che quindi non è nel processore)*/
 		struct list_head* scroll = head->next;
 		list_for_each(scroll,head){
 			container_of(scroll,pcb_t,p_next)->priority = container_of(scroll,pcb_t,p_next)->priority+1;
 		}
+	}
 }

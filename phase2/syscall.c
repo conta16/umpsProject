@@ -10,6 +10,7 @@
 
 extern pcb_t* current;
 extern pcb_t ready_queue;
+LIST_HEAD_INIT(lista_waiting);
 unsigned int keys[48]; /* da sistemare in posto opportuno e inizializzarlo per bene*/
 
 void syscall_handler(){
@@ -33,6 +34,9 @@ void syscall_handler(){
 		break;
 	case SETTUTOR:
 		setTutor();
+		break;
+	case WAITCLOCK:
+		waitClock();
 		break;
 	case GETPID:
 		getPids(old->reg_a1, old->reg_a2);
@@ -155,4 +159,7 @@ int terminateProcess(void **pid){
         }
         else kill_proc((void **)current);
         return 0;
+}
+void waitClock(){
+	
 }

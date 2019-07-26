@@ -42,14 +42,14 @@
 	Altrimenti, si va avanti con la normale esecuzione di uno scheduler RR con aging: il processo in memoria viene rimesso a priorità originaria mentre quelli presenti nella ready_queue vengono
 	aumentati di un'unità.
 	Dopo, si rimette il processo puntato da current nella ready queue e si carica nuovamente il processo con maggiore priorità.
-	Vengono quindi chiamate le funzioni setTIMER(3000) (setta il Processor Local Timer a 3 ms, quindi ogni 3 ms l'esecuzione passa all'interrupt handler) e LDST, che carica il processo selezionato
+	Vengono quindi chiamate le funzioni setTIMER((3000*TIME_SCALE)) (setta il Processor Local Timer a 3 ms, quindi ogni 3 ms l'esecuzione passa all'interrupt handler) e LDST, che carica il processo selezionato
 	sul processore
 
 - syscall.c:
 
 	Primitivo gestore delle systemcall. Dopo eserre chiamato controlla che Cause.ExcCode sia corretto, se lo è, dopo ciò verifica che nel registro a0 il codice della chiamata corrispona a quello della systemcall da gestire, in caso positivo viene chiamato il gestore opprtuno, altrimenti un gestore di default che segnala l'errore.
 	Il gestore della chiamata SYS3, come da specifica, prima di eseguirsi sul nodo del proceso da cui è stato chamato, effettua una visita posticipata del'albero dei processi radicato nel processo corrente in modo da eseguirsi in ogni caso con la condizione che il processo da tetrminare non ha figli.
-	L'eliminazione di ciascun processo consiste in: chiamata ricorsiva, eliminazione dalla sta dei figli del processo padre, eliminazione dalla ready queue, e liberazione del pcb sul quale risiedeva il processo. 
+	L'eliminazione di ciascun processo consiste in: chiamata ricorsiva, eliminazione dalla sta dei figli del processo padre, eliminazione dalla ready queue, e liberazione del pcb sul quale risiedeva il processo.
 
 - utils.c:
 
