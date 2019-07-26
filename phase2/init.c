@@ -87,3 +87,7 @@ void init(pcb_t *ready_queue){
 	init_pcbs();
 	insertProcQ(&(ready_queue->p_next), test_pcb);
 }
+
+void init_blocked(pcb_t *blocked_queue){
+	mkEmptyProcQ(&(blocked_queue->p_next));
+}
