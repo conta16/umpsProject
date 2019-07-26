@@ -23,6 +23,7 @@ extern void test();
 extern pcb_t* test_pcb;
 extern void syscall_handler();
 extern void int_handler();
+extern pcb_t* blocked_queue;
 
 void init_area(state_t* newarea, void (*handler)()){
 
