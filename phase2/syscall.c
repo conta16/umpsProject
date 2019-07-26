@@ -37,7 +37,9 @@ void syscall_handler(){
 	case GETPID:
 		getPids(old->reg_a1, old->reg_a2);
 	  break;
-
+	case VERHOGEN:
+		verhogen(old->reg_a1);
+		break;
 	default: //in ogni altro caso, errore.
 		syscall_error();
 		break;
@@ -155,4 +157,19 @@ int terminateProcess(void **pid){
         }
         else kill_proc((void **)current);
         return 0;
+}
+
+void verhogen(int* semaddr) {
+	if (*semaddr>=0)
+		*semaddr+=1;
+	else{
+
+	}
+}
+void passeren(int* semaddr){
+		*semaddr--;
+		if (*semaddr<0){
+			insertBlocked(semaddr, current);
+
+		}
 }
