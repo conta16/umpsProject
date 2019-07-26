@@ -14,6 +14,7 @@
 #include "utils.h"
 #include <umps/libumps.h>
 #include "pcb.h"
+#include "const_rikaya.h"
 
 
 pcb_t* current;
