@@ -46,7 +46,7 @@ void scheduler_init(struct list_head* head){
 	if (current->middle_time != -1)
 		current->middle_time = current->initial_time;
 	increment_pcbs_priority(head);
-	setTIMER(3000);
+	setTIMER();
 	setSTATUS(getSTATUS()|1);/*impostiamo lo stato del processore*/
 	LDST(&(current->p_s));
 }
