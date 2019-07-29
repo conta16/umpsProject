@@ -45,7 +45,7 @@ void init_area(state_t* newarea, void (*handler)()){
 
 void init_areas(){
 	init_area((state_t*)INT_NEWAREA, int_handler);
-	init_area((state_t*)SYSBK_NEWAREA, syscall_handler);
+	init_area((state_t*)SYSBK_NEWAREA, sysbk_handler);
 	init_area((state_t*)TLB_NEWAREA, tlb_handler);
 	init_area((state_t*)PGMTRAP_NEWAREA, pgmtrap_handler);
 }

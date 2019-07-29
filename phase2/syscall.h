@@ -6,17 +6,18 @@
 void syscall_handler();
 void syscall_error();
 void oldarea_pc_increment();
-void getPids();
-void getTime();
-unsigned int ioCommand();
-int createProcess();
-void setTutor();
+void get_pids();
+void get_time();
+unsigned int io_command();
+int create_process();
+void set_tutor();
 void kill_proc();
 pcb_t* find_tutor();
-int terminateProcess(void **pid);
+int terminate_process(void **pid);
 void verhogen();
 void passeren();
-int specpassup();
+void wait_clock();
+int spec_passup();
 
 
 #endif

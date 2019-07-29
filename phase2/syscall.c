@@ -13,7 +13,7 @@ extern pcb_t ready_queue;
 extern pcb_t blocked_queue;
 extern pcb_t waiting_queue;
 
-unsigned int keys[48]; /* da sistemare in posto opportuno e inizializzarlo per bene*/
+extern unsigned int keys[49];
 
 short int spec_assigned[3];
 
@@ -26,23 +26,23 @@ void syscall_handler(){
 	state_t* old=(state_t*)SYSBK_OLDAREA; //old punta all'old-area
 	switch (old->reg_a0){
 	case GETCPUTIME:
-		getTime(old->reg_a1, old->reg_a2, old->reg_a3);
+		get_time(old->reg_a1, old->reg_a2, old->reg_a3);
 		break;
 	case CREATEPROCESS:
-		createProcess(old->reg_a1, old->reg_a2, old->reg_a3);
+		create_process(old->reg_a1, old->reg_a2, old->reg_a3);
 		break;
 	case TERMINATEPROCESS: // se il tipo di chiamata è 3, chiamiamo il gestore deputato, poi lo scheduler
-		terminateProcess((void **)(old->reg_a1));
+		terminate_process((void **)(old->reg_a1));
 		scheduler(&(ready_queue.p_next));
 		break;
 	case WAITIO:
-		ioCommand(old->reg_a1, old->reg_a2, old->reg_a3);
+		io_command(old->reg_a1, old->reg_a2, old->reg_a3);
 		break;
 	case SETTUTOR:
-		setTutor();
+		set_tutor();
 		break;
 	case GETPID:
-		getPids(old->reg_a1, old->reg_a2);
+		get_pids(old->reg_a1, old->reg_a2);
 	  break;
 	case VERHOGEN:
 		verhogen(old->reg_a1);
@@ -50,8 +50,10 @@ void syscall_handler(){
 	case PASSEREN:
 		passeren(old->reg_a1);
 		break;
+	case WAITCLOCK:
+		wait_clock();
 	case SPECPASSUP:
-		specpassup (old->reg_a1, old->reg_a1, old->reg_a2, old->reg_a3);
+		spec_passup(old->reg_a1, old->reg_a1, old->reg_a2, old->reg_a3);
 	default: //in ogni altro caso, errore.
 		syscall_error();
 		break;
@@ -79,14 +81,20 @@ void oldarea_pc_increment(){ //utility: affinchè dopo la syscall, il processo c
 	old->pc_epc+=4;
 }
 
-void getPids(void ** pid, void ** ppid){
+void wait_clock(){
+	unsigned int *tmp = (unsigned int *)I_TIMER;
+	*tmp = (unsigned int) 1;
+	SYSCALL(PASSEREN,(unsigned int)&(keys[48]),0,0);
+}
+
+void get_pids(void ** pid, void ** ppid){
 	if (*pid != NULL)
 		*pid = current;
 	if (*ppid != NULL)
 		*ppid = current->p_parent;
 }
 
-void getTime (unsigned int *user, unsigned int *kernel, unsigned int *wallclock){
+void get_time (unsigned int *user, unsigned int *kernel, unsigned int *wallclock){
 	if (user != NULL && kernel != NULL && wallclock != NULL){
 		*user = current->total_time_user;
 		*kernel = current->total_time_kernel + (getClock()-current->last_syscall_time);
@@ -97,9 +105,10 @@ void getTime (unsigned int *user, unsigned int *kernel, unsigned int *wallclock)
 		syscall_error();
 	}
 }
-unsigned int ioCommand(unsigned int command, unsigned int *ourReg, int type){
+unsigned int io_command(unsigned int command, unsigned int *ourReg, int type){
 	dtpreg_t* devreg = (dtpreg_t*) ourReg;
 	termreg_t* termreg = (termreg_t*) ourReg;
+	unsigned int semd_id;
 	int dev = check_device(ourReg);
 	if (dev < 32)
 		devreg->command = command;
@@ -108,19 +117,18 @@ unsigned int ioCommand(unsigned int command, unsigned int *ourReg, int type){
 			termreg->transm_command = command;
 		else
 			termreg->recv_command = command;
-	int b;
 	do{
-		b = insertBlocked((int *)&(keys[dev]),current);
-		if(b == 0){
-			if (dev < 32 || (dev < 40 && type == 0)) SYSCALL(PASSEREN,(unsigned int)&(keys[dev]),0,0);
-			else SYSCALL(PASSEREN,(unsigned int)&(keys[dev+8]),0,0);
-		}
-	}while(b == 1);
+		if (dev < 32 || (dev < 40 && type == 0))
+			semd_id = (unsigned int)&(keys[dev]);
+		else
+			semd_id = (unsigned int)&(keys[dev+8]);
+		SYSCALL(PASSEREN,semd_id,0,0);
+	}while(getSemd((int *)semd_id) == NULL);
 	if (dev < 32) return devreg->status;
 	else if (type == 0) return termreg->transm_status;
 	else return termreg->recv_status;
 }
-int createProcess( state_t *statep, int priority, void ** cpid){
+int create_process( state_t *statep, int priority, void ** cpid){
 	int i;
 	pcb_t* p = allocPcb();
 	if (p == NULL) return -1;
@@ -134,7 +142,7 @@ int createProcess( state_t *statep, int priority, void ** cpid){
 	cpid = (void **)p; 				/*---------- dubbio --------------*/
 	return 0;
 }
-void setTutor(){
+void set_tutor(){
 		current->tutor = 1;
 }
 int get_process(void **pid, struct list_head children){
@@ -162,7 +170,7 @@ pcb_t* find_tutor(pcb_t* pid){
         if (pid->tutor == 1) return pid;
         else return find_tutor(pid->p_parent);
 }
-int terminateProcess(void **pid){
+int terminate_process(void **pid){
         if (pid != 0 || pid != NULL){
                 if (get_process(pid,current->p_child) == -1) return -1;
                 kill_proc(pid);
@@ -190,7 +198,7 @@ void passeren(int* semaddr){
 		}
 }
 
-int specpassup(int type, state_t* old, state_t* new){
+int spec_passup(int type, state_t* old, state_t* new){
 	if(spec_assigned[type]){
 		return -1;
 	}

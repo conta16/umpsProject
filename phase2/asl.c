@@ -8,7 +8,7 @@ static semd_t semd_table[MAXPROC];
 static semd_t semdFree_h;
 static semd_t semd_h;
 
-
+unsigned int keys[49];
 /*DESCRIZIONE: Inizializza la lista dei semdFree in modo da contenere tutti gli elementi della semdTable.
 Questo metodo viene invocato una volta sola durante l’inizializzazione della struttura dati.*/
 
@@ -18,9 +18,10 @@ void initASL(){
 	int i;
 	INIT_LIST_HEAD(&(semdFree_h.s_next));
 	INIT_LIST_HEAD(&(semd_h.s_next));
-	for (i=0; i<MAXPROC; i++){
+	for (i=0; i<49; i++)
+		keys[i] = 0;
+	for (i=0; i<MAXPROC; i++)
 		list_add_tail(&(semd_table[i].s_next), &(semdFree_h.s_next));
-	}
 }
 
 

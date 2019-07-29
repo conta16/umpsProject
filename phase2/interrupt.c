@@ -16,11 +16,12 @@
 #include "interrupt.h"
 #include "scheduler.h"
 #include "arch.h"
+#include "asl.h"
 #include <umps/libumps.h>
 
 extern pcb_t* current;
 extern pcb_t ready_queue;
-
+extern unsigned int keys[49];
 /*int rcvPLT(){
         unsigned int tmp = getCAUSE();
 	tmp = tmp >> 8;
@@ -64,33 +65,45 @@ extern void int_handler(){
 	}
         else if (line == IL_TIMER+8){
 		unsigned int *tmp = (unsigned int *)I_TIMER;
-		*tmp = (unsigned int)-1;
+                *tmp = (unsigned int)-1;
+                while(getSemd((int *)&(keys[48])) != NULL)
+                        SYSCALL(VERHOGEN,(unsigned int)&(keys[48]),0,0);
         }
 	else if (line == IL_DISK+8){
 		i = getDevice(INST_INT_LINE3, INT_DEV_LINE3);
-		dev_register = (dtpreg_t *) DEV_REG_ADDR(IL_DISK, i); //nota: forse c'è errore su uso puntatore
+		dev_register = (dtpreg_t *) DEV_REG_ADDR(IL_DISK, i);
 		dev_register->command = CMD_ACK;
+		SYSCALL(VERHOGEN,(unsigned int)&(keys[i]),0,0);
 	}
         else if (line == IL_TAPE+8){
 		i = getDevice(INST_INT_LINE4, INT_DEV_LINE4);
 		dev_register = (dtpreg_t *) DEV_REG_ADDR(IL_TAPE, i);
 		dev_register->command = CMD_ACK;
+		SYSCALL(VERHOGEN,(unsigned int)&(keys[8+i]),0,0);
         }
         else if (line == IL_ETHERNET+8){
                 i = getDevice(INST_INT_LINE5, INT_DEV_LINE5);
                 dev_register = (dtpreg_t *) DEV_REG_ADDR(IL_ETHERNET, i);
                 dev_register->command = CMD_ACK;
+		SYSCALL(VERHOGEN,(unsigned int)&(keys[16+i]),0,0);
         }
         else if (line == IL_PRINTER+8){
                 i = getDevice(INST_INT_LINE6, INT_DEV_LINE6);
                 dev_register = (dtpreg_t *) DEV_REG_ADDR(IL_PRINTER, i);
                 dev_register->command = CMD_ACK;
+		SYSCALL(VERHOGEN,(unsigned int)&(keys[24+i]),0,0);
         }
         else if (line == IL_TERMINAL+8){
                 i = getDevice(INST_INT_LINE7, INT_DEV_LINE7);
                 term_register = (termreg_t *) DEV_REG_ADDR(IL_TERMINAL, i);
-                if (term_register->transm_status == CHAR_TRANSMD) term_register->transm_command = CMD_ACK;
-		if (term_register->recv_status == CHAR_RECVD) term_register->recv_command = CMD_ACK;
+                if (term_register->transm_status == CHAR_TRANSMD){
+			term_register->transm_command = CMD_ACK;
+			SYSCALL(VERHOGEN,(unsigned int)&(keys[32+i]),0,0);
+		}
+		if (term_register->recv_status == CHAR_RECVD){
+			term_register->recv_command = CMD_ACK;
+			SYSCALL(VERHOGEN,(unsigned int)&(keys[40+i]),0,0);
+		}
         }
 
 }
