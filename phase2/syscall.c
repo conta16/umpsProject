@@ -44,9 +44,11 @@ void syscall_handler(){
 	  break;
 	case VERHOGEN:
 		verhogen(old->reg_a1);
+		sys_return(old);
 		break;
 	case PASSEREN:
 		passeren(old->reg_a1);
+		sys_return(old);
 		break;
 	case WAITCLOCK:
 		wait_clock();
@@ -59,6 +61,12 @@ void syscall_handler(){
 		current->total_time_kernel += (getClock() - current->last_syscall_time);
 		current->middle_time = getClock();
 	}
+
+void sys_return(state_t* old){ //Questa syscall aggiorna il valore di pc e fa ldst dell'area old in modo da far ripartire l'esecuzione
+	old->pc_epc+=4;
+	old->reg_t9=old->pc_epc;
+	LDST(old);
+}
 
 int check_device(unsigned int *reg){
 	int i,dev;

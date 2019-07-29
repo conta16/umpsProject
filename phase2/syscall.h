@@ -5,6 +5,7 @@
 
 void syscall_handler();
 void syscall_error();
+void sys_return(state_t* old);
 void oldarea_pc_increment();
 void get_pids();
 void get_time();
