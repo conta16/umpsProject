@@ -7,6 +7,5 @@ void init(pcb_t *ready_queue);
 void init_pcbs();
 void init_areas();
 void init_area(state_t* newarea, void (* handler)());
-void init_blocked();
 
 #endif

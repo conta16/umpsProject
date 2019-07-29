@@ -22,7 +22,6 @@ extern void test();
 extern pcb_t* test_pcb;
 extern void syscall_handler();
 extern void int_handler();
-extern pcb_t blocked_queue;
 extern void tlb_handler();
 extern void sysbk_handler();
 extern void pgmtrap_handler();
@@ -80,12 +79,7 @@ void init(pcb_t *ready_queue){
 	initPcbs();
 	initASL();
 	mkEmptyProcQ(&(ready_queue->p_next));
-	mkEmptyProcQ(&(blocked_queue.p_next));
 	init_areas();
 	init_pcbs();
 	insertProcQ(&(ready_queue->p_next), test_pcb);
-}
-
-void init_blocked(pcb_t *blocked_queue){
-	mkEmptyProcQ(&(blocked_queue->p_next));
 }

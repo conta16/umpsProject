@@ -10,8 +10,6 @@
 
 extern pcb_t* current;
 extern pcb_t ready_queue;
-extern pcb_t blocked_queue;
-extern pcb_t waiting_queue;
 
 extern unsigned int keys[49];
 
@@ -193,7 +191,7 @@ void passeren(int* semaddr){
 		if (*semaddr<0){
 			insertBlocked(semaddr, current);
 			outProcQ(&(ready_queue.p_next), current);
-			insertProcQ(&(blocked_queue.p_next), current);
+			/*insertProcQ(&(blocked_queue.p_next), current);*/
 			scheduler_init(&(ready_queue.p_next));
 		}
 }

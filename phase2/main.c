@@ -17,15 +17,11 @@
 #include "utils.h"
 
 pcb_t ready_queue;
-pcb_t blocked_queue;
-pcb_t waiting_queue;
 pcb_t *test_pcb;
 
 int main(void)
 {
 	init(&ready_queue);
-	init_blocked(&blocked_queue);
-	init_blocked(&waiting_queue);
 	scheduler(&(ready_queue.p_next));
 	HALT();
 }
