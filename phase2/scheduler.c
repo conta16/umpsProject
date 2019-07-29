@@ -33,9 +33,11 @@ void scheduler(struct list_head* head){
 		esattamente alla fine dell' ultimo time-slice quindi lo trattiamo come una nuova inizializzazione*/
 		if (!list_empty(head))
 			scheduler_init(head);
-		else
-			HALT();
+		else{
+			setTIMER(3000);
+			idle();
 		}
+	}
 }
 
 void scheduler_init(struct list_head* head){
@@ -59,4 +61,8 @@ void increment_pcbs_priority(struct list_head* head){
 			container_of(scroll,pcb_t,p_next)->priority = container_of(scroll,pcb_t,p_next)->priority+1;
 		}
 	}
+}
+
+void idle(){
+	while(1);
 }

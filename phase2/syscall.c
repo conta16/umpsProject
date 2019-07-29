@@ -199,8 +199,9 @@ void passeren(int* semaddr){
 		if (*semaddr<0){
 			insertBlocked(semaddr, current);
 			outProcQ(&(ready_queue.p_next), current);
+			current = NULL;
 			/*insertProcQ(&(blocked_queue.p_next), current);*/
-			scheduler_init(&(ready_queue.p_next));
+			scheduler(&(ready_queue.p_next));
 		}
 }
 
