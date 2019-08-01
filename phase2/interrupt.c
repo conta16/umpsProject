@@ -22,19 +22,22 @@
 extern pcb_t* current;
 extern pcb_t ready_queue;
 extern unsigned int keys[49];
-/*int rcvPLT(){
+int rcvPLT(){
         unsigned int tmp = getCAUSE();
 	tmp = tmp >> 8;
 	return getBit(1,tmp);
-}*/
+}
 
 
-int getDevice(unsigned int inst_dev, unsigned int int_dev){
-	int i;
-	for (i=0;i<8;i++)
-		if(getBit(i,inst_dev) && getBit(i,int_dev))
-			return i;
-	return -1;
+int getDevice(unsigned int int_dev){
+	if (int_dev == (int_dev | 0x1)) return 0;
+	if (int_dev == (int_dev | 0x2)) return 1;
+	if (int_dev == (int_dev | 0x4)) return 2;
+	if (int_dev == (int_dev | 0x8)) return 3;
+	if (int_dev == (int_dev | 0x10)) return 4;
+	if (int_dev == (int_dev | 0x20)) return 5;
+	if (int_dev == (int_dev | 0x40)) return 6;
+	return 7;
 }
 
 /*Ritorna la posizione del pending interrupt. Visto che la ricerca di questo interrupt avviene dal primo all'ultimo, viene sempre preso l'interrupt con priorità più alta*/
@@ -52,7 +55,7 @@ extern void int_handler(){
 	int i;
 	dtpreg_t* dev_register;
 	termreg_t* term_register;
-	copyState((state_t *)INT_OLDAREA, &(current->p_s)); /*funzione definita in utils.c, copia lo stato dell'old area e lo mette in current, che è il puntatore all'ultimo pcb scelto dallo scheduler*/
+	if (current != NULL) copyState((state_t *)INT_OLDAREA, &(current->p_s)); /*funzione definita in utils.c, copia lo stato dell'old area e lo mette in current, che è il puntatore all'ultimo pcb scelto dallo scheduler*/
 	int line = getLineInt();
 	if (line == IL_IPI+8){
 		/*nessuna azione significativa è associata a questa linea per questa fase: mi limito a mandare l'ack, senza sapere quale processore ha mandato l'interrupt*/
@@ -70,37 +73,43 @@ extern void int_handler(){
                         SYSCALL(VERHOGEN,(unsigned int)&(keys[48]),0,0);
         }
 	else if (line == IL_DISK+8){
-		i = getDevice(INST_INT_LINE3, INT_DEV_LINE3);
+		i = getDevice(INT_DEV_LINE3);
 		dev_register = (dtpreg_t *) DEV_REG_ADDR(IL_DISK, i);
 		dev_register->command = CMD_ACK;
 		SYSCALL(VERHOGEN,(unsigned int)&(keys[i]),0,0);
 	}
         else if (line == IL_TAPE+8){
-		i = getDevice(INST_INT_LINE4, INT_DEV_LINE4);
+		i = getDevice(INT_DEV_LINE4);
 		dev_register = (dtpreg_t *) DEV_REG_ADDR(IL_TAPE, i);
 		dev_register->command = CMD_ACK;
 		SYSCALL(VERHOGEN,(unsigned int)&(keys[8+i]),0,0);
         }
         else if (line == IL_ETHERNET+8){
-                i = getDevice(INST_INT_LINE5, INT_DEV_LINE5);
+                i = getDevice(INT_DEV_LINE5);
                 dev_register = (dtpreg_t *) DEV_REG_ADDR(IL_ETHERNET, i);
                 dev_register->command = CMD_ACK;
 		SYSCALL(VERHOGEN,(unsigned int)&(keys[16+i]),0,0);
         }
         else if (line == IL_PRINTER+8){
-                i = getDevice(INST_INT_LINE6, INT_DEV_LINE6);
-                dev_register = (dtpreg_t *) DEV_REG_ADDR(IL_PRINTER, i);
+                i = getDevice(INT_DEV_LINE6);
+		dev_register = (dtpreg_t *) DEV_REG_ADDR(IL_PRINTER, i);
                 dev_register->command = CMD_ACK;
 		SYSCALL(VERHOGEN,(unsigned int)&(keys[24+i]),0,0);
         }
         else if (line == IL_TERMINAL+8){
-                i = getDevice(INST_INT_LINE7, INT_DEV_LINE7);
+                void wait(){
+                        while (term_register->transm_status == DEV_BUSY);
+                }
+                i = getDevice(INT_DEV_LINE7);
+		if (i==2) wait();
                 term_register = (termreg_t *) DEV_REG_ADDR(IL_TERMINAL, i);
-                if (term_register->transm_status == CHAR_TRANSMD){
+                if ((term_register->transm_status & (unsigned int)255) == CHAR_TRANSMD){
+			wait();
 			term_register->transm_command = CMD_ACK;
 			SYSCALL(VERHOGEN,(unsigned int)&(keys[32+i]),0,0);
 		}
-		if (term_register->recv_status == CHAR_RECVD){
+		if ((term_register->recv_status & (unsigned int)255) == CHAR_RECVD){
+			wait();
 			term_register->recv_command = CMD_ACK;
 			SYSCALL(VERHOGEN,(unsigned int)&(keys[40+i]),0,0);
 		}
