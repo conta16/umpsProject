@@ -18,6 +18,7 @@
 
 pcb_t ready_queue;
 pcb_t *test_pcb;
+pcb_t *idle;
 
 int main(void)
 {

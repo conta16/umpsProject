@@ -5,5 +5,4 @@
 void scheduler();
 void scheduler_init();
 void increment_pcbs_priority();
-void idle();
 #endif

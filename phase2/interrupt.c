@@ -102,7 +102,7 @@ extern void int_handler(){
                 }
                 i = getDevice(INT_DEV_LINE7);
 		if (i==2) wait();
-                term_register = (termreg_t *) DEV_REG_ADDR(IL_TERMINAL, i);
+                term_register = (termreg_t *) DEV_REG_ADDR(IL_TERMINAL, 0);
                 if ((term_register->transm_status & (unsigned int)255) == CHAR_TRANSMD){
 			wait();
 			term_register->transm_command = CMD_ACK;

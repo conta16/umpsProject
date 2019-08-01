@@ -19,7 +19,9 @@
 #include "const_rikaya.h"
 
 extern void test();
+extern void wait();
 extern pcb_t* test_pcb;
+extern pcb_t* idle;
 extern void syscall_handler();
 extern void int_handler();
 extern void tlb_handler();
@@ -57,11 +59,12 @@ void init_pcbs(){
 	setBit(VMc,&(test_pcb->p_s.status),0);
 	setBit(TE,&(test_pcb->p_s.status),1);
 	setBit(KUc,&(test_pcb->p_s.status),0);
-	test_pcb->p_s.status|=(255<<8); /*Abilito tutti gli interrupt tranne quelli da terminale (che verrà messo a posto nella prossima fase).
+	test_pcb->p_s.status|=(255<<8);
+					/*Abilito tutti gli interrupt tranne quelli da terminale (che verrà messo a posto nella prossima fase).
 					E' disabilitato perchè non mandando l'ack dell'interrupt, appena viene caricato il nuovo pcb da scheduler, il controllo viene
 					ancora passato all'interrupt handler e così via*/
 	test_pcb->p_s.status|=(1UL<<0);
-	test_pcb->p_s.status|=(1UL<<2); //LDST() fa un push all'indietro dei bit IE, dunque per settare l'IEc occorre settare anche IEp.
+	test_pcb->p_s.status|=(0x000082001UL<<2); //LDST() fa un push all'indietro dei bit IE, dunque per settare l'IEc occorre settare anche IEp.
 	test_pcb->p_s.reg_sp = RAMTOP-FRAMESIZE;
 	test_pcb->priority = 1;
 	test_pcb->original_priority= 1; /*aggiunto il campo original_priority per implementare aging*/
@@ -70,6 +73,27 @@ void init_pcbs(){
 
 	test_pcb->p_s.pc_epc = (unsigned int) test;
 	test_pcb->p_s.reg_t9 = test_pcb->p_s.pc_epc;
+
+	idle = allocPcb();
+
+        setBit(IEc,&(idle->p_s.status),1);
+        setBit(VMc,&(idle->p_s.status),0);
+        setBit(TE,&(idle->p_s.status),1);
+        setBit(KUc,&(idle->p_s.status),0);
+        idle->p_s.status|=(255<<8);
+
+        idle->p_s.status|=(1UL<<0);
+        idle->p_s.status|=(1UL<<2); //LDST() fa un push all'indietro dei bit IE, dunque per settare l'IEc occorre settare anche IEp.
+        idle->p_s.reg_sp = RAMTOP-FRAMESIZE;
+        idle->priority = 1;
+        idle->original_priority= 1; /*aggiunto il campo original_priority per implementare aging*/
+
+        /*Per ogni pcb, faccio puntare il campo pc a una delle tre funzioni test1, test2 e test3*/
+
+        idle->p_s.pc_epc = (unsigned int) wait;
+        idle->p_s.reg_t9 = idle->p_s.pc_epc;
+
+
 }
 
 /*Funzione chiamata dal main. Inizializza i pcb e le new area chiamando funzioni che settano i bit di stato e gli altri campi necessari per l'inizializzazione del sistema

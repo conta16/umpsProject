@@ -16,7 +16,7 @@
 #include "pcb.h"
 #include "const_rikaya.h"
 
-
+extern pcb_t* idle;
 pcb_t* current;
 
 void scheduler(struct list_head* head){
@@ -35,7 +35,9 @@ void scheduler(struct list_head* head){
 		if (!list_empty(head))
 			scheduler_init(head);
 		else{
-			idle();
+			current = idle;
+			setTIMER(3000*TIME_SCALE);
+			LDST(&(current->p_s));
 		}
 	}
 }
@@ -61,8 +63,4 @@ void increment_pcbs_priority(struct list_head* head){
 			container_of(scroll,pcb_t,p_next)->priority = container_of(scroll,pcb_t,p_next)->priority+1;
 		}
 	}
-}
-
-void idle(){
-	while(1);
 }
