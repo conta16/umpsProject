@@ -19,8 +19,10 @@ state_t *sysbk_old, *tlb_old, *pgmtrap_old;
 state_t *sysbk_new, *tlb_new, *pgmtrap_new;
 
 void syscall_handler(){
-	current->last_syscall_time = getClock();
-	current->total_time_user = (current->last_syscall_time - current->middle_time);
+	if (current != NULL){
+		current->last_syscall_time = getClock();
+		current->total_time_user = (current->last_syscall_time - current->middle_time);
+	}
 	state_t* old=(state_t*)SYSBK_OLDAREA;
 	switch (old->reg_a0){
 	case GETCPUTIME:
@@ -58,9 +60,11 @@ void syscall_handler(){
 		syscall_error();
 		break;
 		}
+	if (current != NULL){
 		current->total_time_kernel += (getClock() - current->last_syscall_time);
 		current->middle_time = getClock();
 	}
+}
 
 void sys_return(state_t* old){ //Questa syscall aggiorna il valore di pc e fa ldst dell'area old in modo da far ripartire l'esecuzione
 	old->pc_epc+=4;

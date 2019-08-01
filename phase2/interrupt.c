@@ -29,15 +29,12 @@ int rcvPLT(){
 }
 
 
-int getDevice(unsigned int int_dev){
-	if (int_dev == (int_dev | 0x1)) return 0;
-	if (int_dev == (int_dev | 0x2)) return 1;
-	if (int_dev == (int_dev | 0x4)) return 2;
-	if (int_dev == (int_dev | 0x8)) return 3;
-	if (int_dev == (int_dev | 0x10)) return 4;
-	if (int_dev == (int_dev | 0x20)) return 5;
-	if (int_dev == (int_dev | 0x40)) return 6;
-	return 7;
+int getDevice(unsigned int inst_dev, unsigned int int_dev){
+	int i;
+	for (i=0;i<8;i++)
+		if(getBit(i,inst_dev) && getBit(i,int_dev))
+			return i;
+	return -1;
 }
 
 /*Ritorna la posizione del pending interrupt. Visto che la ricerca di questo interrupt avviene dal primo all'ultimo, viene sempre preso l'interrupt con priorità più alta*/
@@ -70,48 +67,49 @@ extern void int_handler(){
 		unsigned int *tmp = (unsigned int *)I_TIMER;
                 *tmp = (unsigned int)-1;
                 while(getSemd((int *)&(keys[48])) != NULL)
-                        SYSCALL(VERHOGEN,(unsigned int)&(keys[48]),0,0);
+                        SYSCALL(VERHOGEN,(int)&(keys[48]),0,0);
         }
 	else if (line == IL_DISK+8){
-		i = getDevice(INT_DEV_LINE3);
+		i = getDevice(INST_INT_LINE3,INT_DEV_LINE3);
 		dev_register = (dtpreg_t *) DEV_REG_ADDR(IL_DISK, i);
 		dev_register->command = CMD_ACK;
-		SYSCALL(VERHOGEN,(unsigned int)&(keys[i]),0,0);
+		SYSCALL(VERHOGEN,(int)&(keys[i]),0,0);
 	}
         else if (line == IL_TAPE+8){
-		i = getDevice(INT_DEV_LINE4);
+		i = getDevice(INST_INT_LINE4,INT_DEV_LINE4);
 		dev_register = (dtpreg_t *) DEV_REG_ADDR(IL_TAPE, i);
 		dev_register->command = CMD_ACK;
-		SYSCALL(VERHOGEN,(unsigned int)&(keys[8+i]),0,0);
+		SYSCALL(VERHOGEN,(int)&(keys[8+i]),0,0);
         }
         else if (line == IL_ETHERNET+8){
-                i = getDevice(INT_DEV_LINE5);
+                i = getDevice(INST_INT_LINE5,INT_DEV_LINE5);
                 dev_register = (dtpreg_t *) DEV_REG_ADDR(IL_ETHERNET, i);
                 dev_register->command = CMD_ACK;
-		SYSCALL(VERHOGEN,(unsigned int)&(keys[16+i]),0,0);
+		SYSCALL(VERHOGEN,(int)&(keys[16+i]),0,0);
         }
         else if (line == IL_PRINTER+8){
-                i = getDevice(INT_DEV_LINE6);
+                i = getDevice(INST_INT_LINE6,INT_DEV_LINE6);
 		dev_register = (dtpreg_t *) DEV_REG_ADDR(IL_PRINTER, i);
                 dev_register->command = CMD_ACK;
-		SYSCALL(VERHOGEN,(unsigned int)&(keys[24+i]),0,0);
+		SYSCALL(VERHOGEN,(int)&(keys[24+i]),0,0);
         }
         else if (line == IL_TERMINAL+8){
                 void wait(){
                         while (term_register->transm_status == DEV_BUSY);
                 }
-                i = getDevice(INT_DEV_LINE7);
-		if (i==2) wait();
-                term_register = (termreg_t *) DEV_REG_ADDR(IL_TERMINAL, 0);
+                i = getDevice(INST_INT_LINE7,INT_DEV_LINE7);
+		if (i==3) wait();
+                term_register = (termreg_t *) DEV_REG_ADDR(IL_TERMINAL, 0);/*da mettere +i*/
                 if ((term_register->transm_status & (unsigned int)255) == CHAR_TRANSMD){
 			wait();
+			wait();
 			term_register->transm_command = CMD_ACK;
-			SYSCALL(VERHOGEN,(unsigned int)&(keys[32+i]),0,0);
+			SYSCALL(VERHOGEN,(int)&(keys[32]),0,0);/*da mettere +i*/
 		}
 		if ((term_register->recv_status & (unsigned int)255) == CHAR_RECVD){
 			wait();
 			term_register->recv_command = CMD_ACK;
-			SYSCALL(VERHOGEN,(unsigned int)&(keys[40+i]),0,0);
+			SYSCALL(VERHOGEN,(int)&(keys[40]),0,0);/*da mettere +i*/
 		}
         }
 

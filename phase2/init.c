@@ -64,7 +64,7 @@ void init_pcbs(){
 					E' disabilitato perchè non mandando l'ack dell'interrupt, appena viene caricato il nuovo pcb da scheduler, il controllo viene
 					ancora passato all'interrupt handler e così via*/
 	test_pcb->p_s.status|=(1UL<<0);
-	test_pcb->p_s.status|=(0x000082001UL<<2); //LDST() fa un push all'indietro dei bit IE, dunque per settare l'IEc occorre settare anche IEp.
+	test_pcb->p_s.status|=(1UL<<2); //LDST() fa un push all'indietro dei bit IE, dunque per settare l'IEc occorre settare anche IEp.
 	test_pcb->p_s.reg_sp = RAMTOP-FRAMESIZE;
 	test_pcb->priority = 1;
 	test_pcb->original_priority= 1; /*aggiunto il campo original_priority per implementare aging*/

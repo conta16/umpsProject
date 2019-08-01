@@ -23,6 +23,6 @@ pcb_t *idle;
 int main(void)
 {
 	init(&ready_queue);
-	scheduler(&(ready_queue.p_next));
+	scheduler_init(&(ready_queue.p_next));
 	HALT();
 }
