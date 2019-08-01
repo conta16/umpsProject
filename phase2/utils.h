@@ -62,10 +62,15 @@
 #define CLOCK_HIGH 0x10000018
 #define CLOCK_LOW  0x1000001c
 
+typedef unsigned int u32;
+
 void copyState (state_t *src, state_t *dst);
 int getBit (int shift, unsigned int reg);
 int setBit();
 unsigned int getExcCode();
 unsigned int getClock();
+void term_puts(const char *str);
+int term_putchar(char c);
+u32 tx_status(termreg_t *tp);
 
 #endif

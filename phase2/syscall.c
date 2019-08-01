@@ -21,7 +21,7 @@ state_t *sysbk_new, *tlb_new, *pgmtrap_new;
 void syscall_handler(){
 	current->last_syscall_time = getClock();
 	current->total_time_user = (current->last_syscall_time - current->middle_time);
-	state_t* old=(state_t*)SYSBK_OLDAREA; //old punta all'old-area
+	state_t* old=(state_t*)SYSBK_OLDAREA;
 	switch (old->reg_a0){
 	case GETCPUTIME:
 		get_time(old->reg_a1, old->reg_a2, old->reg_a3);

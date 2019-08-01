@@ -35,7 +35,7 @@ void init_area(state_t* newarea, void (*handler)()){
 	tmp->reg_t9 = tmp->pc_epc;
 	tmp->reg_sp = RAMTOP;
 	setBit(KUc,&(tmp->status),0);
-	setBit(IEc,&(tmp->status),1);
+	setBit(IEc,&(tmp->status),0);
 	setBit(VMc,&(tmp->status),0);
 	setBit(TE,&(tmp->status),1);
 	tmp->status|=(255<<8); /*Tutti i bit di interrupt sono messi a 0: una volta caricato lo stato della new area, quindi, nessun nuovo interrupt verrà considerato

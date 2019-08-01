@@ -20,6 +20,7 @@
 pcb_t* current;
 
 void scheduler(struct list_head* head){
+	setSTATUS(getSTATUS()|5);
 	if (current!=NULL){
 		current->priority = current->original_priority;/*se il processore ha un processo ne riaggiorniamo la priorità, settandola a quella originale*/
 		increment_pcbs_priority(head);/*effettuiamo l' aging su tutti gli altri processi*/
@@ -34,7 +35,6 @@ void scheduler(struct list_head* head){
 		if (!list_empty(head))
 			scheduler_init(head);
 		else{
-			setTIMER(3000);
 			idle();
 		}
 	}
