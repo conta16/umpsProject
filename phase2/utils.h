@@ -69,9 +69,7 @@ int getBit (int shift, unsigned int reg);
 int setBit();
 unsigned int getExcCode();
 unsigned int getClock();
-void term_puts(const char *str);
-int term_putchar(char c);
 void wait();
-u32 tx_status(termreg_t *tp);
+int get_bit (int shift, unsigned int reg);
 
 #endif

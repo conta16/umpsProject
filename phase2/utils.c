@@ -43,7 +43,13 @@ int getBit (int shift, unsigned int reg){
         return (tmp & reg) >> shift;
 }
 
-
+int get_bit(int shift, unsigned int reg){
+	if (shift < 0 || shift > 31) return -1;
+	unsigned int tmp = 1;
+	tmp = tmp << shift;
+	if ((tmp & reg) >> shift == (unsigned int) 1) return 1;
+	else return 0;
+}
 /*
 input:
 	shift: analogo a sopra

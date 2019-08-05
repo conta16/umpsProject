@@ -17,6 +17,7 @@
 #include "scheduler.h"
 #include "arch.h"
 #include "asl.h"
+#include "syscall.h"
 #include <umps/libumps.h>
 
 extern pcb_t* current;
@@ -32,7 +33,7 @@ int rcvPLT(){
 int getDevice(unsigned int inst_dev, unsigned int int_dev){
 	int i;
 	for (i=0;i<8;i++)
-		if(getBit(i,inst_dev) && getBit(i,int_dev))
+		if(get_bit(i,inst_dev) && get_bit(i,int_dev))
 			return i;
 	return -1;
 }
@@ -67,31 +68,31 @@ extern void int_handler(){
 		unsigned int *tmp = (unsigned int *)I_TIMER;
                 *tmp = (unsigned int)-1;
                 while(getSemd((int *)&(keys[48])) != NULL)
-                        SYSCALL(VERHOGEN,(int)&(keys[48]),0,0);
+                        verhogen((int)&(keys[48])); //non mi ricordo per quale cazzo di motivo ho fatto un ciclo qui
         }
 	else if (line == IL_DISK+8){
 		i = getDevice(INST_INT_LINE3,INT_DEV_LINE3);
 		dev_register = (dtpreg_t *) DEV_REG_ADDR(IL_DISK, i);
 		dev_register->command = CMD_ACK;
-		SYSCALL(VERHOGEN,(int)&(keys[i]),0,0);
+		verhogen((int)&(keys[i]));
 	}
         else if (line == IL_TAPE+8){
 		i = getDevice(INST_INT_LINE4,INT_DEV_LINE4);
 		dev_register = (dtpreg_t *) DEV_REG_ADDR(IL_TAPE, i);
 		dev_register->command = CMD_ACK;
-		SYSCALL(VERHOGEN,(int)&(keys[8+i]),0,0);
+		verhogen((int)&(keys[8+i]));
         }
         else if (line == IL_ETHERNET+8){
                 i = getDevice(INST_INT_LINE5,INT_DEV_LINE5);
                 dev_register = (dtpreg_t *) DEV_REG_ADDR(IL_ETHERNET, i);
                 dev_register->command = CMD_ACK;
-		SYSCALL(VERHOGEN,(int)&(keys[16+i]),0,0);
+		verhogen((int)&(keys[16+i]));
         }
         else if (line == IL_PRINTER+8){
                 i = getDevice(INST_INT_LINE6,INT_DEV_LINE6);
 		dev_register = (dtpreg_t *) DEV_REG_ADDR(IL_PRINTER, i);
                 dev_register->command = CMD_ACK;
-		SYSCALL(VERHOGEN,(int)&(keys[24+i]),0,0);
+		verhogen((int)&(keys[24+i]));
         }
         else if (line == IL_TERMINAL+8){
                 void wait(){
@@ -104,13 +105,13 @@ extern void int_handler(){
 			wait();
 			wait();
 			term_register->transm_command = CMD_ACK;
-			SYSCALL(VERHOGEN,(int)&(keys[32]),0,0);/*da mettere +i*/
+			verhogen((int)&(keys[32]));/*da mettere +i*/
 		}
 		if ((term_register->recv_status & (unsigned int)255) == CHAR_RECVD){
-			wait();
 			term_register->recv_command = CMD_ACK;
-			SYSCALL(VERHOGEN,(int)&(keys[40]),0,0);/*da mettere +i*/
+			verhogen((int)&(keys[40]));/*da mettere +i*/
 		}
         }
+	if (current == NULL && !list_empty(&(ready_queue.p_next))) scheduler_init(&(ready_queue.p_next));
 
 }
