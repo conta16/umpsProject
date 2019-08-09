@@ -25,4 +25,5 @@ int main(void)
 	init(&ready_queue);
 	scheduler_init(&(ready_queue.p_next));
 	HALT();
+	return 0;
 }
