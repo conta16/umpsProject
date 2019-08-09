@@ -97,3 +97,11 @@ unsigned int getClock(){
   clock = *((long int*)(CLOCK_HIGH));
   return clock;
 }
+
+void disable_interrupts(){
+	setSTATUS(getSTATUS()&(~1UL));
+}
+
+void enable_interrupts(){
+	setSTATUS(getSTATUS()|(1UL));
+}

@@ -20,7 +20,8 @@ extern pcb_t* idle;
 pcb_t* current;
 
 void scheduler(struct list_head* head){
-	setSTATUS(getSTATUS()|5);
+	//setSTATUS(getSTATUS()|5);
+	if (current==idle) current=NULL;
 	if (current!=NULL){
 		current->priority = current->original_priority;/*se il processore ha un processo ne riaggiorniamo la priorità, settandola a quella originale*/
 		increment_pcbs_priority(head);/*effettuiamo l' aging su tutti gli altri processi*/
@@ -51,7 +52,7 @@ void scheduler_init(struct list_head* head){
 		current->middle_time = current->initial_time;
 	increment_pcbs_priority(head);
 	setTIMER((3000*TIME_SCALE));
-	setSTATUS(getSTATUS()|1);/*impostiamo lo stato del processore*/
+	//setSTATUS(getSTATUS()|1);/*impostiamo lo stato del processore*/
 	LDST(&(current->p_s));
 }
 

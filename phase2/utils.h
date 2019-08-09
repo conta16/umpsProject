@@ -71,5 +71,7 @@ unsigned int getExcCode();
 unsigned int getClock();
 void wait();
 int get_bit (int shift, unsigned int reg);
+void disable_interrupts();
+void enable_interrupts();
 
 #endif

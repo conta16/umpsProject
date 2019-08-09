@@ -9,7 +9,7 @@ void sys_return(state_t* old);
 void oldarea_pc_increment();
 void get_pids();
 void get_time();
-unsigned int io_command();
+void io_command();
 int create_process();
 void set_tutor();
 void kill_proc();

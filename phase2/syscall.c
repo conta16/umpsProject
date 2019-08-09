@@ -18,12 +18,17 @@ short int spec_assigned[3];
 state_t *sysbk_old, *tlb_old, *pgmtrap_old;
 state_t *sysbk_new, *tlb_new, *pgmtrap_new;
 
+static state_t* old=(state_t*)SYSBK_OLDAREA;
+
+
+static int syscall;
+
 void syscall_handler(){
 	if (current != NULL){
 		current->last_syscall_time = getClock();
 		current->total_time_user = (current->last_syscall_time - current->middle_time);
 	}
-	state_t* old=(state_t*)SYSBK_OLDAREA;
+	syscall=old->reg_a0;
 	switch (old->reg_a0){
 	case GETCPUTIME:
 		get_time(old->reg_a1, old->reg_a2, old->reg_a3);
@@ -37,6 +42,7 @@ void syscall_handler(){
 		break;
 	case WAITIO:
 		io_command(old->reg_a1, old->reg_a2, old->reg_a3);
+		sys_return(old);
 		break;
 	case SETTUTOR:
 		set_tutor();
@@ -45,17 +51,19 @@ void syscall_handler(){
 		get_pids(old->reg_a1, old->reg_a2);
 	  break;
 	case VERHOGEN:
+		oldarea_pc_increment();
 		verhogen(old->reg_a1);
-		sys_return(old);
 		break;
 	case PASSEREN:
-		passeren(old->reg_a1);
-		sys_return(old);
+	  oldarea_pc_increment();
+		passeren(old->reg_a1, old);
 		break;
 	case WAITCLOCK:
 		wait_clock();
+		break;
 	case SPECPASSUP:
 		spec_passup(old->reg_a1, old->reg_a1, old->reg_a2, old->reg_a3);
+		break;
 	default: //in ogni altro caso, errore.
 		syscall_error();
 		break;
@@ -64,9 +72,10 @@ void syscall_handler(){
 		current->total_time_kernel += (getClock() - current->last_syscall_time);
 		current->middle_time = getClock();
 	}
+	LDST(old);
 }
 
-void sys_return(state_t* old){ //Questa syscall aggiorna il valore di pc e fa ldst dell'area old in modo da far ripartire l'esecuzione
+void sys_return(state_t* old){ //aggiorna il valore di pc e fa ldst dell'area old in modo da far ripartire l'esecuzione
 	old->pc_epc+=4;
 	old->reg_t9=old->pc_epc;
 	LDST(old);
@@ -87,14 +96,14 @@ void syscall_error(){
 
 void oldarea_pc_increment(){ //utility: affinchè dopo la syscall, il processo chiamante possap prosegire, occorre incrementare il pc di tale processo. Non ancora utilizzata.
 	state_t* old=(state_t*)SYSBK_OLDAREA;
-	old->reg_t9+=4; //per regioni architetturali, un incremento di pc non è valideo se non viene anche incrementato t9.
 	old->pc_epc+=4;
+	old->reg_t9=old->pc_epc; //per regioni architetturali, un incremento di pc non è valideo se non viene anche incrementato t9.
 }
 
 void wait_clock(){
 	unsigned int *tmp = (unsigned int *)I_TIMER;
 	*tmp = (unsigned int) 1;
-	SYSCALL(PASSEREN,(unsigned int)&(keys[48]),0,0);
+	passeren((unsigned int)&(keys[48]));
 }
 
 void get_pids(void ** pid, void ** ppid){
@@ -115,7 +124,8 @@ void get_time (unsigned int *user, unsigned int *kernel, unsigned int *wallclock
 		syscall_error();
 	}
 }
-unsigned int io_command(unsigned int command, unsigned int *ourReg, int type){
+
+void io_command(unsigned int command, unsigned int *ourReg, int type){
 	dtpreg_t* devreg = (dtpreg_t*) ourReg;
 	termreg_t* termreg = (termreg_t*) ourReg;
 	unsigned int semd_id;
@@ -127,18 +137,18 @@ unsigned int io_command(unsigned int command, unsigned int *ourReg, int type){
 			termreg->transm_command = command;
 		else
 			termreg->recv_command = command;
-	do{
-		if (dev < 32 || (dev < 40 && type == 0))
-			semd_id = (unsigned int)&(keys[dev]);
-		else
-			semd_id = (unsigned int)&(keys[dev+8]);
-		SYSCALL(PASSEREN,semd_id,0,0);
-	}while(getSemd((int *)semd_id) == NULL);
-	if (dev < 32) return devreg->status;
-	else if (type == 0) return termreg->transm_status;
-	else return termreg->recv_status;
+	if (dev < 32 || (dev < 40 && type == 0))
+		semd_id = (unsigned int)&(keys[dev]);
+	else
+		semd_id = (unsigned int)&(keys[dev+8]);
+	if (dev < 32) old->reg_v0 = devreg->status;
+	else if (type == 0) old->reg_v0 = termreg->transm_status;
+	else old->reg_v0 = termreg->recv_status;
+	oldarea_pc_increment();
+	passeren(semd_id, (state_t*) SYSBK_OLDAREA);
 }
-int create_process( state_t *statep, int priority, void ** cpid){
+
+int create_process(state_t *statep, int priority, void ** cpid){
 	int i;
 	pcb_t* p = allocPcb();
 	if (p == NULL) return -1;
@@ -189,18 +199,19 @@ int terminate_process(void **pid){
         return 0;
 }
 
+static pcb_t* tmp;
+
 void verhogen(int* semaddr) {
-	if (*semaddr>=0)
-		*semaddr+=1;
-	else{
-		pcb_t* tmp=removeBlocked(semaddr);
-		if (tmp!=NULL)
-			insertProcQ(&(ready_queue.p_next), tmp);
-	}
+	*semaddr+=1;
+	tmp=removeBlocked(semaddr);
+	if (tmp!=NULL)
+		insertProcQ(&(ready_queue.p_next), tmp);
 }
-void passeren(int* semaddr){
+
+void passeren(int* semaddr, state_t* block_state){
 		*semaddr-=1;
 		if (*semaddr<0){
+			copyState(block_state, &(current->p_s));
 			insertBlocked(semaddr, current);
 			outProcQ(&(ready_queue.p_next), current);
 			current = NULL;

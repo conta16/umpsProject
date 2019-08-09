@@ -49,69 +49,76 @@ int getLineInt(){
 }
 
 
+void wait_transm(unsigned int *status){
+        while (((*status)&255) != CHAR_TRANSMD)
+          if (((*status)&255) != DEV_BUSY)
+            PANIC();
+        return;
+}
+
+static int here=0;
+
 extern void int_handler(){
 	int i;
 	dtpreg_t* dev_register;
 	termreg_t* term_register;
-	if (current != NULL) copyState((state_t *)INT_OLDAREA, &(current->p_s)); /*funzione definita in utils.c, copia lo stato dell'old area e lo mette in current, che è il puntatore all'ultimo pcb scelto dallo scheduler*/
 	int line = getLineInt();
 	if (line == IL_IPI+8){
 		/*nessuna azione significativa è associata a questa linea per questa fase: mi limito a mandare l'ack, senza sapere quale processore ha mandato l'interrupt*/
 		unsigned int *tmp = (unsigned int*) INBOX;
 		*tmp = (unsigned int)-1;
-	}
+	  }
 	else if (line == IL_CPUTIMER+8){
+    if (current != NULL) copyState((state_t *)INT_OLDAREA, &(current->p_s)); /*funzione definita in utils.c, copia lo stato dell'old area e lo mette in current, che è il puntatore all'ultimo pcb scelto dallo scheduler*/
 		setTIMER((unsigned int)-1); /*ack del Processor Local Timer*/
 		scheduler(&(ready_queue.p_next));
-	}
-        else if (line == IL_TIMER+8){
+	  }
+  else if (line == IL_TIMER+8){
 		unsigned int *tmp = (unsigned int *)I_TIMER;
-                *tmp = (unsigned int)-1;
-                while(getSemd((int *)&(keys[48])) != NULL)
-                        verhogen((int)&(keys[48])); //non mi ricordo per quale cazzo di motivo ho fatto un ciclo qui
-        }
+    *tmp = (unsigned int)-1;
+    while(getSemd((int *)&(keys[48])) != NULL)
+      verhogen((int)&(keys[48])); //non mi ricordo per quale cazzo di motivo ho fatto un ciclo qui
+    }
 	else if (line == IL_DISK+8){
 		i = getDevice(INST_INT_LINE3,INT_DEV_LINE3);
 		dev_register = (dtpreg_t *) DEV_REG_ADDR(IL_DISK, i);
 		dev_register->command = CMD_ACK;
 		verhogen((int)&(keys[i]));
 	}
-        else if (line == IL_TAPE+8){
+  else if (line == IL_TAPE+8){
 		i = getDevice(INST_INT_LINE4,INT_DEV_LINE4);
 		dev_register = (dtpreg_t *) DEV_REG_ADDR(IL_TAPE, i);
 		dev_register->command = CMD_ACK;
 		verhogen((int)&(keys[8+i]));
-        }
-        else if (line == IL_ETHERNET+8){
-                i = getDevice(INST_INT_LINE5,INT_DEV_LINE5);
-                dev_register = (dtpreg_t *) DEV_REG_ADDR(IL_ETHERNET, i);
-                dev_register->command = CMD_ACK;
-		verhogen((int)&(keys[16+i]));
-        }
-        else if (line == IL_PRINTER+8){
-                i = getDevice(INST_INT_LINE6,INT_DEV_LINE6);
-		dev_register = (dtpreg_t *) DEV_REG_ADDR(IL_PRINTER, i);
-                dev_register->command = CMD_ACK;
-		verhogen((int)&(keys[24+i]));
-        }
-        else if (line == IL_TERMINAL+8){
-                void wait(){
-                        while (term_register->transm_status == DEV_BUSY);
-                }
-                i = getDevice(INST_INT_LINE7,INT_DEV_LINE7);
-		if (i==3) wait();
-                term_register = (termreg_t *) DEV_REG_ADDR(IL_TERMINAL, 0);/*da mettere +i*/
-                if ((term_register->transm_status & (unsigned int)255) == CHAR_TRANSMD){
-			wait();
-			wait();
-			term_register->transm_command = CMD_ACK;
-			verhogen((int)&(keys[32]));/*da mettere +i*/
-		}
-		if ((term_register->recv_status & (unsigned int)255) == CHAR_RECVD){
-			term_register->recv_command = CMD_ACK;
-			verhogen((int)&(keys[40]));/*da mettere +i*/
-		}
-        }
-	if (current == NULL && !list_empty(&(ready_queue.p_next))) scheduler_init(&(ready_queue.p_next));
-
+    }
+  else if (line == IL_ETHERNET+8){
+    i = getDevice(INST_INT_LINE5,INT_DEV_LINE5);
+    dev_register = (dtpreg_t *) DEV_REG_ADDR(IL_ETHERNET, i);
+    dev_register->command = CMD_ACK;
+	  verhogen((int)&(keys[16+i]));
+    }
+  else if (line == IL_PRINTER+8){
+    i = getDevice(INST_INT_LINE6,INT_DEV_LINE6);
+	  dev_register = (dtpreg_t *) DEV_REG_ADDR(IL_PRINTER, i);
+    dev_register->command = CMD_ACK;
+	  verhogen((int)&(keys[24+i]));
+    }
+  else if (line == IL_TERMINAL+8){
+    term_register = (termreg_t *) DEV_REG_ADDR(IL_TERMINAL, 0);/*da mettere +i*/
+    i = getDevice(INST_INT_LINE7,INT_DEV_LINE7);
+	  if (i==3) wait_transm(&(term_register->transm_status));
+    if ((term_register->transm_status & (unsigned int)255) == CHAR_TRANSMD){
+      wait_transm(&(term_register->transm_status));
+	    wait_transm(&(term_register->transm_status));
+	    term_register->transm_command = CMD_ACK;
+	    verhogen((int)&(keys[32]));/*da mettere +i*/
+	    }
+	  if ((term_register->recv_status & (unsigned int)255) == CHAR_RECVD){
+      term_register->recv_command = CMD_ACK;
+		  verhogen((int)&(keys[40]));/*da mettere +i*/
+      }
+    }
+	//if (current == NULL && !list_empty(&(ready_queue.p_next))) scheduler_init(&(ready_queue.p_next));
+  here=1;
+  LDST((state_t*)INT_OLDAREA);
 }
