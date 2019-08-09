@@ -13,7 +13,7 @@
 #include "umps/libumps.h"
 #include "umps/arch.h"
 #include "umps/types.h"
-
+#include "const_rikaya.h"
 typedef char word;
 
 

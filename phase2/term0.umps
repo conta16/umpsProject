@@ -2,4 +2,9 @@ p1 v(testsem)
 p2 was started
 p2 starts
 p2 v/p pairs successfully
+<<<<<<< HEAD
 p2 is OK
+=======
+error: not enough cpu time went by
+p2 blew it!
+>>>>>>> 90f2387948cc7e7870bc553a8d39208f008530b8
