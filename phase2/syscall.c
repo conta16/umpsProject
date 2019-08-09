@@ -29,8 +29,9 @@ void syscall_handler(){
 		current->total_time_user = (current->last_syscall_time - current->middle_time);
 	}
 	syscall=old->reg_a0;
-	switch (old->reg_a0){
+	switch (syscall){
 	case GETCPUTIME:
+		oldarea_pc_increment();
 		get_time(old->reg_a1, old->reg_a2, old->reg_a3);
 		break;
 	case CREATEPROCESS:

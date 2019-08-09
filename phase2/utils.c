@@ -13,7 +13,7 @@
 #include "umps/libumps.h"
 #include "umps/arch.h"
 #include "umps/types.h"
-
+#include "const_rikaya.h"
 typedef char word;
 
 
@@ -94,8 +94,8 @@ void copyState(state_t* src, state_t* dst){
 
 unsigned int getClock(){
   long int clock;
-  clock = *((long int*)(CLOCK_HIGH));
-  return clock;
+  clock = *((unsigned int*)(CLOCK_HIGH));
+  return clock;  /*return getTODLO();*/
 }
 
 void disable_interrupts(){
