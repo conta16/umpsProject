@@ -35,6 +35,7 @@ void syscall_handler(){
 		break;
 	case CREATEPROCESS:
 		create_process(old->reg_a1, old->reg_a2, old->reg_a3);
+		sys_return(old);
 		break;
 	case TERMINATEPROCESS: // se il tipo di chiamata è 3, chiamiamo il gestore deputato, poi lo scheduler
 		terminate_process((void **)(old->reg_a1));
@@ -148,19 +149,23 @@ void io_command(unsigned int command, unsigned int *ourReg, int type){
 	passeren(semd_id, (state_t*) SYSBK_OLDAREA);
 }
 
-int create_process(state_t *statep, int priority, void ** cpid){
+void create_process(state_t *statep, int priority, void ** cpid){
 	int i;
 	pcb_t* p = allocPcb();
-	if (p == NULL) return -1;
+	if (p == NULL){
+		old->reg_v0 = -1;
+		return;
+	}
 	insertChild(current,p);
+	insertProcQ(&(ready_queue.p_next), p);
 	char *c = (char *)&(p->p_s);
-	char *d = (char *)&(statep);
-        for (i=0; i<sizeof(state_t); i++,c++,d++)	/* Ciclo di scorrimento per copiare il campo statep in p_s*/
-                *c=*d;
+	char *d = (char *)statep;
+  for (i=0; i<sizeof(state_t); i++,c++,d++)	/* Ciclo di scorrimento per copiare il campo statep in p_s*/
+    *c=*d;
 	p->priority = priority;
 	p->original_priority = priority;
-	cpid = (void **)p; 				/*---------- dubbio --------------*/
-	return 0;
+	if (cpid!=NULL) *cpid = (void **)p; 				/*---------- dubbio --------------*/
+	old->reg_v0 = 0;
 }
 void set_tutor(){
 		current->tutor = 1;

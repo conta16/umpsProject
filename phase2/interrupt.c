@@ -56,8 +56,6 @@ void wait_transm(unsigned int *status){
         return;
 }
 
-static int here=0;
-
 extern void int_handler(){
 	int i;
 	dtpreg_t* dev_register;
@@ -110,15 +108,16 @@ extern void int_handler(){
     if ((term_register->transm_status & (unsigned int)255) == CHAR_TRANSMD){
       wait_transm(&(term_register->transm_status));
 	    wait_transm(&(term_register->transm_status));
+      headBlocked((int*)&(keys[32]))->p_s.reg_v0=term_register->transm_status;
 	    term_register->transm_command = CMD_ACK;
 	    verhogen((int)&(keys[32]));/*da mettere +i*/
 	    }
 	  if ((term_register->recv_status & (unsigned int)255) == CHAR_RECVD){
+      headBlocked((int*)&(keys[32]))->p_s.reg_v0=term_register->recv_status;
       term_register->recv_command = CMD_ACK;
 		  verhogen((int)&(keys[40]));/*da mettere +i*/
       }
     }
 	//if (current == NULL && !list_empty(&(ready_queue.p_next))) scheduler_init(&(ready_queue.p_next));
-  here=1;
   LDST((state_t*)INT_OLDAREA);
 }

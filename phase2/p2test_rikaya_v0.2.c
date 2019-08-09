@@ -114,7 +114,6 @@ pid_t childpid, intermediatepid, p8pid;
 void	p2(),p3(),p4(),p5(),p5a(),p5b(),p6(),p7(),p7a(),p5prog(),p5mm();
 void	p5sys(),p8root(),child1(),child2(),p8leaf(),curiousleaf(), intermediate();
 
-static int pos;
 
 /* a procedure to print on terminal 0 */
 void print(char *msg) {
@@ -130,24 +129,16 @@ void print(char *msg) {
 			 actually starts the operation on the device! */
 		command = PRINTCHR | (((devregtr) *s) << BYTELEN);
 
-		pos=1;
-
 		/* Wait for I/O completion (SYS8) */
 		status = SYSCALL(WAITIO, command, (int)base, FALSE);
-
-		pos=2;
 
 		/*		PANIC(); */
 
 		if ((status & TERMSTATMASK) != TRANSM)
 			PANIC();
 
-		pos=3;
-
 		if (((status & TERMCHARMASK) >> BYTELEN) != *s)
 			PANIC();
-
-		pos=4;
 
 		s++;
 	}

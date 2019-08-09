@@ -10,7 +10,7 @@ void oldarea_pc_increment();
 void get_pids();
 void get_time();
 void io_command();
-int create_process();
+void create_process();
 void set_tutor();
 void kill_proc();
 pcb_t* find_tutor();
