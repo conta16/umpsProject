@@ -114,7 +114,6 @@ pid_t childpid, intermediatepid, p8pid;
 void	p2(),p3(),p4(),p5(),p5a(),p5b(),p6(),p7(),p7a(),p5prog(),p5mm();
 void	p5sys(),p8root(),child1(),child2(),p8leaf(),curiousleaf(), intermediate();
 
-
 /* a procedure to print on terminal 0 */
 void print(char *msg) {
 	unsigned int command;
@@ -314,14 +313,14 @@ void test() {
 	PANIC();					/* PANIC !!!     */
 }
 
+static cpu_t	user_t1, user_t2;	 /* user time used       */
+static cpu_t	kernel_t1, kernel_t2;	 /* kernel time used       */
+static cpu_t	wallclock_t1, wallclock_t2;	 /* wallclock time used       */
 
 /* p2 -- semaphore and cputime-SYS test process */
 void p2() {
 	int		i;				       /* just to waste time  */
 	cpu_t	now1,now2;		   /* times of day        */
-	cpu_t	user_t1, user_t2;	 /* user time used       */
-	cpu_t	kernel_t1, kernel_t2;	 /* kernel time used       */
-	cpu_t	wallclock_t1, wallclock_t2;	 /* wallclock time used       */
 
 	/* startp2 is initialized to 0. p1 Vs it then waits for p2 termination */
 	SYSCALL(PASSEREN, (int)&startp2, 0, 0);				/* P(startp2)   */

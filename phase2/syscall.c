@@ -31,6 +31,7 @@ void syscall_handler(){
 	syscall=old->reg_a0;
 	switch (old->reg_a0){
 	case GETCPUTIME:
+		oldarea_pc_increment();
 		get_time(old->reg_a1, old->reg_a2, old->reg_a3);
 		break;
 	case CREATEPROCESS:
@@ -204,9 +205,8 @@ int terminate_process(void **pid){
         return 0;
 }
 
-static pcb_t* tmp;
-
 void verhogen(int* semaddr) {
+  pcb_t* tmp;
 	*semaddr+=1;
 	tmp=removeBlocked(semaddr);
 	if (tmp!=NULL)

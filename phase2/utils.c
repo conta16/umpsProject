@@ -94,7 +94,7 @@ void copyState(state_t* src, state_t* dst){
 
 unsigned int getClock(){
   long int clock;
-  clock = *((long int*)(CLOCK_HIGH));
+  clock = *((long int*)(CLOCK_LOW));
   return clock;
 }
 
