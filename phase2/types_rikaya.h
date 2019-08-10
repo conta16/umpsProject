@@ -13,8 +13,7 @@ typedef struct pcb_t {
 
 	/*process tree fields */
 	struct pcb_t		*p_parent;
-	struct list_head	p_child,
-				p_sib;
+	struct list_head	p_child, p_sib;
 
 	/* processor state, etc */
 	state_t       		p_s;

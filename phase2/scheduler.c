@@ -27,7 +27,7 @@ void scheduler(struct list_head* head){
 		increment_pcbs_priority(head);/*effettuiamo l' aging su tutti gli altri processi*/
 		insertProcQ(head,current);/*reinseriamo il processo corrente nella coda dei processi*/
 		current=removeProcQ(head);/*scegliamo un altro processo da eseguire usando le funzioni di pcb.c*/
-		setTIMER((3000*TIME_SCALE));/*aggiorniamo il time-slice*/
+		setTIMER(3000*TIME_SCALE);/*aggiorniamo il time-slice*/
 		LDST(&(current->p_s));/*carichiamo il processo nel processore*/
 	}
 	else{
@@ -51,7 +51,7 @@ void scheduler_init(struct list_head* head){
 	if (current->middle_time != -1)
 		current->middle_time = current->initial_time;
 	increment_pcbs_priority(head);
-	setTIMER((3000*TIME_SCALE));
+	setTIMER(3000*TIME_SCALE);
 	//setSTATUS(getSTATUS()|1);/*impostiamo lo stato del processore*/
 	LDST(&(current->p_s));
 }
