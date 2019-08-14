@@ -128,12 +128,12 @@ Quindi, in questo modo mettiamo p come figlio di prnt*/
 void insertChild (pcb_t* prnt, pcb_t* p){
 	p->p_parent = prnt;
 	/*visto che p ha un nuovo padre perde tutti i sib vecchi. Li rimuoviamo e inseriamo i figli già esistenti di prnt al loro posto*/
-	__list_del((p->p_sib).prev,(p->p_sib).next);
-	struct list_head* head = &(prnt->p_child);
-	struct list_head* cursor = head->next;
+	__list_del((p->p_sib).prev,(p->p_sib).next); /*cancella l'intera lista*/
+	struct list_head* head = &(prnt->p_child); /*cerco la testa di p_child*/
+	struct list_head* cursor = head->next; /*prendo il primo elemento di p_child*/
 	while (cursor != head){
-		list_add_tail(cursor,&(p->p_sib)); /*container_of per avere il pcb ma diocane non so usarlo e mi sto incazzando*/
-		list_add_tail(&(p->p_next),container_of(cursor,pcb_t*,p)->p_sib); /*i figli già esistenti di prnt devono aggiungere p come loro sib*/
+		list_add_tail(cursor,&(p->p_sib)); /*aggiungo alla lista di sib i figli di prnt*/
+		list_add_tail(&(p->p_next),container_of(cursor,pcb_t*,p)->p_sib); /*aggiungo alla lista di sib dei figli di prnt p*/
 		cursor = cursor->next;
 	}
 }
