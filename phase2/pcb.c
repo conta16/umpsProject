@@ -127,8 +127,43 @@ Quindi, in questo modo mettiamo p come figlio di prnt*/
 
 void insertChild (pcb_t* prnt, pcb_t* p){
 	p->p_parent = prnt;
-	list_add_tail(&(p->p_sib), &(prnt->p_child));
+	/*visto che p ha un nuovo padre perde tutti i sib vecchi. Li rimuoviamo e inseriamo i figli già esistenti di prnt al loro posto*/
+	__list_del((p->p_sib).prev,(p->p_sib).next);
+	struct list_head* head = &(prnt->p_child);
+	struct list_head* cursor = head->next;
+	while (cursor != head){
+		list_add_tail(cursor,&(p->p_sib)); /*container_of per avere il pcb ma diocane non so usarlo e mi sto incazzando*/
+		list_add_tail(&(p->p_next),container_of(cursor,pcb_t*,p)->p_sib); /*i figli già esistenti di prnt devono aggiungere p come loro sib*/
+		cursor = cursor->next;
+	}
 }
+
+
+
+/*
+p->p_parent = prnt;
+struct list_head* head;
+struct list_head* cursor;
+struct list_head* sibcur;
+head = &(p->p_sib)->next;
+sibcur = head->next;
+while (sibcur != head){
+	list_add_tail(&(),&());
+	cursor = cursor->next;
+}
+ head = &(prnt->p_child)->next;
+ cursor = head->next;
+while (cursor != head){
+	list_add_tail(&(cursor->p_child), &(p->p_sib)); aggiungo tutti i figli di prnt come sib di p
+	list_add_tail(container_of(,,),); aggiungo a tutti i figli di prnt p come sib ma non so come. ci vorrà container_of I guess
+	cursor = cursor->next;
+}
+*/
+
+
+
+
+
 
 /*Usiamo la funzione outChild() per eliminare il primo figlio passandolo come parametro*/
 
