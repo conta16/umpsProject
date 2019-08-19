@@ -174,14 +174,14 @@ void set_tutor(){
 int get_process(void **pid, struct list_head children){
         struct list_head *tmp;
         list_for_each(tmp,&children){
-                if (container_of(tmp,pcb_t,p_sib) == (pcb_t *)pid) return 0;
+                if (container_of(tmp,pcb_t,p_sib) == (pcb_t *) pid) return 0;
                 if (!emptyChild(container_of(tmp,pcb_t,p_sib))) get_process(pid,container_of(tmp,pcb_t,p_sib)->p_child);
         }
         return -1;
 }
 
 void kill_proc(void **pid){
-	pcb_t* proc = (pcb_t*) *pid;
+				pcb_t* proc = (pcb_t*) *pid;
         struct list_head *tmp;
 				struct list_head *tmp2;
         struct list_head children = proc->p_child;
@@ -199,7 +199,7 @@ pcb_t* find_tutor(pcb_t* pid){
         else return find_tutor(pid->p_parent);
 }
 int terminate_process(void **pid){
-        if (pid != 0 || pid != NULL){
+        if (pid != 0 && pid != NULL){
                 if (get_process(pid,current->p_child) == -1) return -1;
                 kill_proc(pid);
         }

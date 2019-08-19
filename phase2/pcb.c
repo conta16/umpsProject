@@ -128,6 +128,7 @@ Quindi, in questo modo mettiamo p come figlio di prnt*/
 void insertChild (pcb_t* prnt, pcb_t* p){
 	p->p_parent = prnt;
 	list_del(&(p->p_sib));
+	INIT_LIST_HEAD(&(p->p_sib));
 	list_add_tail(&(p->p_sib), &(prnt->p_child));
 }
 
