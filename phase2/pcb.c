@@ -133,7 +133,6 @@ void insertChild (pcb_t* prnt, pcb_t* p){
 
 
 
-
 /*Usiamo la funzione outChild() per eliminare il primo figlio passandolo come parametro*/
 
 pcb_t* removeChild (pcb_t* p){
