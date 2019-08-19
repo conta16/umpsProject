@@ -187,9 +187,12 @@ void kill_proc(pcb_t* pid/*void **pid*/){
         struct list_head children = proc->p_child;
         pcb_t* tutor = find_tutor(proc);
 <<<<<<< HEAD
+<<<<<<< HEAD
         for (tmp = (&(children))->next; tmp != (&(children)); tmp = tmp2){
 		tmp2 = tmp->next;
 =======
+=======
+>>>>>>> aed7c76265d2418da664323ceb9232d28c68e35d
         freePcb(proc);
         for (tmp = (&(children))->next, tmp2 = tmp; tmp != (&(children)); tmp = tmp2){
 								tmp2 = tmp->next;
