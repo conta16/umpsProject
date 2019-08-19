@@ -181,24 +181,14 @@ int get_process(void **pid, struct list_head children){
 }
 
 void kill_proc(pcb_t* pid/*void **pid*/){
-				pcb_t* proc = /*(pcb_t*) */ pid;
-        struct list_head *tmp;
-	struct list_head *tmp2;
-        struct list_head children = proc->p_child;
+	pcb_t* proc = /*(pcb_t*) */ pid;
+	pcb_t* tmp;
         pcb_t* tutor = find_tutor(proc);
-<<<<<<< HEAD
-<<<<<<< HEAD
-        for (tmp = (&(children))->next; tmp != (&(children)); tmp = tmp2){
-		tmp2 = tmp->next;
-=======
-=======
->>>>>>> aed7c76265d2418da664323ceb9232d28c68e35d
-        freePcb(proc);
-        for (tmp = (&(children))->next, tmp2 = tmp; tmp != (&(children)); tmp = tmp2){
-								tmp2 = tmp->next;
->>>>>>> aed7c76265d2418da664323ceb9232d28c68e35d
-                insertChild(tutor,container_of(tmp,pcb_t,p_sib));
-        }
+	while(!list_empty(&(proc->p_child))){
+		tmp = removeChild(proc);
+		tmp->p_parent = NULL;
+                insertChild(tutor,tmp);
+	}
         freePcb(proc);
 }
 
