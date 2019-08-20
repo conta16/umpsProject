@@ -104,16 +104,14 @@ extern void int_handler(){
   else if (line == IL_TERMINAL+8){
     term_register = (termreg_t *) DEV_REG_ADDR(IL_TERMINAL, 0);/*da mettere +i*/
     i = getDevice(INST_INT_LINE7,INT_DEV_LINE7);
-	  if (i==3) wait_transm(&(term_register->transm_status));
     if ((term_register->transm_status & (unsigned int)255) == CHAR_TRANSMD){
-      wait_transm(&(term_register->transm_status));
 	    wait_transm(&(term_register->transm_status));
-      headBlocked((int*)&(keys[32]))->p_s.reg_v0=term_register->transm_status;
+	    headBlocked((int*)&(keys[32]))->p_s.reg_v0=term_register->transm_status;
 	    term_register->transm_command = CMD_ACK;
 	    verhogen((int)&(keys[32]));/*da mettere +i*/
 	    }
 	  if ((term_register->recv_status & (unsigned int)255) == CHAR_RECVD){
-      headBlocked((int*)&(keys[32]))->p_s.reg_v0=term_register->recv_status;
+      headBlocked((int*)&(keys[40]))->p_s.reg_v0=term_register->recv_status;
       term_register->recv_command = CMD_ACK;
 		  verhogen((int)&(keys[40]));/*da mettere +i*/
       }
