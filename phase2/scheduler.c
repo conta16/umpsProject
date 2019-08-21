@@ -35,13 +35,13 @@ void scheduler(struct list_head* head){
 		/*se il processore non ha un processo significa che il processo prima ha terminato la sua esecuzione
 		esattamente alla fine dell' ultimo time-slice quindi lo trattiamo come una nuova inizializzazione*/
 		if (!list_empty(&(ready_queue.p_next))){
-			void do_nothing(){}
+			/*void do_nothing(){}
 			int count = 0;
 		        struct list_head *tmp;
         		list_for_each(tmp,head){
                 		count+=1;
         		}
-        		if (count == 1) do_nothing();
+        		if (count == 1) do_nothing();*/
 			scheduler_init(head);
 		}
 		else{
@@ -65,11 +65,16 @@ void scheduler_init(struct list_head* head){
 	LDST(&(current->p_s));
 }
 
+extern struct list_head *pcbFree;
+void diop(){}
+
 void increment_pcbs_priority(struct list_head* head){
 	if (head != NULL){
 	/*scorriamo la lista e incrementiamo la priorità di ogni processo presente (che quindi non è nel processore)*/
 		struct list_head* scroll = head->next;
-		list_for_each(scroll,head){
+		list_for_each(scroll,&(ready_queue.p_next)){ /*il problema è qua. In kill_proc ci deve essere un rientro sbagliato dei processi nelle rispettive liste.
+								In questo modo, andando avanti con la ready queue in realtà poi si va a finire in un'altra lista da cui poi non si esce*/
+			if(scroll == head) diop();
 			container_of(scroll,pcb_t,p_next)->priority = container_of(scroll,pcb_t,p_next)->priority+1;
 		}
 	}
