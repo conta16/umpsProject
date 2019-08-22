@@ -189,7 +189,7 @@ void kill_proc(pcb_t* pid/*void **pid*/){
 		tmp->p_parent = NULL;
                 insertChild(tutor,tmp);
 	}
-	outProcQ(&(proc->p_next),&ready_queue);
+	outProcQ(&(ready_queue.p_next),proc);
 	if (proc == current) current = NULL;
         freePcb(proc);
 }
