@@ -3,4 +3,8 @@ p2 was started
 p2 starts
 p2 v/p pairs successfully
 p2 is OK
-pke
+p3 is started
+p3 - WAITCLOCK OK
+error: p3 - CPU time incorrectly maintained
+first incarnation of p4 starts
+p5 starts

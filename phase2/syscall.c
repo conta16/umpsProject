@@ -61,6 +61,7 @@ void syscall_handler(){
 		passeren(old->reg_a1, old);
 		break;
 	case WAITCLOCK:
+		oldarea_pc_increment();
 		wait_clock();
 		break;
 	case SPECPASSUP:
@@ -104,8 +105,8 @@ void oldarea_pc_increment(){ //utility: affinchè dopo la syscall, il processo c
 
 void wait_clock(){
 	unsigned int *tmp = (unsigned int *)I_TIMER;
-	*tmp = (unsigned int) 1;
-	passeren((unsigned int)&(keys[48]));
+	*tmp = (unsigned int) 100000*TIME_SCALE;
+	passeren((unsigned int)&(keys[48]), (state_t*) SYSBK_OLDAREA);
 }
 
 void get_pids(void ** pid, void ** ppid){
@@ -116,15 +117,12 @@ void get_pids(void ** pid, void ** ppid){
 }
 
 void get_time (unsigned int *user, unsigned int *kernel, unsigned int *wallclock){
-	if (user != NULL && kernel != NULL && wallclock != NULL){
+	if (user != NULL)
 		*user = current->total_time_user;
+	if (kernel != NULL)
 		*kernel = current->total_time_kernel + (getClock()-current->last_syscall_time);
+	if (wallclock != NULL)
 		*wallclock = (getClock() - current->initial_time);
-	}
-	else
-	{
-		syscall_error();
-	}
 }
 
 void io_command(unsigned int command, unsigned int *ourReg, int type){
