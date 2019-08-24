@@ -36,6 +36,12 @@ typedef struct pcb_t {
 
 
 	int tutor;
+
+
+	state_t *sysbk_old, *tlb_old, *pgmtrap_old; /*areas for various handlers*/
+	state_t *sysbk_new, *tlb_new, *pgmtrap_new;
+	short int spec_assigned[3];
+
 } pcb_t;
 
 

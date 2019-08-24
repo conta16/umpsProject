@@ -50,6 +50,10 @@ pcb_t* allocPcb(void) {
 		first->total_time_user=0;
 		first->total_time_kernel=0;
 		first->tutor=0;
+		first->sysbk_old=-1; first->tlb_old=-1; first->pgmtrap_old=-1;
+		first->sysbk_new=-1; first->tlb_new=-1; first->pgmtrap_new=-1;
+		for (int i=0; i<3; i++)
+			{first->spec_assigned[i] = 0;}
 	}
 	return first;
 }

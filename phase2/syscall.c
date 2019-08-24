@@ -13,13 +13,7 @@ extern pcb_t ready_queue;
 
 extern unsigned int keys[49];
 
-short int spec_assigned[3];
-
-state_t *sysbk_old, *tlb_old, *pgmtrap_old;
-state_t *sysbk_new, *tlb_new, *pgmtrap_new;
-
 static state_t* old=(state_t*)SYSBK_OLDAREA;
-
 
 static int syscall;
 
@@ -65,6 +59,7 @@ void syscall_handler(){
 		wait_clock();
 		break;
 	case SPECPASSUP:
+		oldarea_pc_increment();
 		spec_passup(old->reg_a1, old->reg_a1, old->reg_a2, old->reg_a3);
 		break;
 	default: //in ogni altro caso, errore.
@@ -229,22 +224,22 @@ void passeren(int* semaddr, state_t* block_state){
 }
 
 int spec_passup(int type, state_t* old, state_t* new){
-	if(spec_assigned[type]){
+	if(current->spec_assigned[type]){
 		return -1;
 	}
-	spec_assigned[type]=1;
+	current->spec_assigned[type]=1;
 	switch (type) {
 		case 0:
-			sysbk_old=old;
-			sysbk_new=new;
+			current->sysbk_old=old;
+			current->sysbk_new=new;
 			break;
 		case 1:
-			tlb_old=old;
-			tlb_new=new;
+			current->tlb_old=old;
+			current->tlb_new=new;
 			break;
 		case 2:
-			pgmtrap_old=old;
-			pgmtrap_new=new;
+			current->pgmtrap_old=old;
+			current->pgmtrap_new=new;
 			break;
 	}
 	return 0;

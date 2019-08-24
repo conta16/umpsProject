@@ -8,3 +8,6 @@ p3 - WAITCLOCK OK
 p3 - CPU time correctly maintained
 first incarnation of p4 starts
 p5 starts
+p6 starts
+p7 starts
+p5 - try to cause a pgm trap access some non-existent memory
