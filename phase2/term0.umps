@@ -5,6 +5,6 @@ p2 v/p pairs successfully
 p2 is OK
 p3 is started
 p3 - WAITCLOCK OK
-error: p3 - CPU time incorrectly maintained
+p3 - CPU time correctly maintained
 first incarnation of p4 starts
 p5 starts

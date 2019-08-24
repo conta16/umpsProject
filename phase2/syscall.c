@@ -220,6 +220,8 @@ void passeren(int* semaddr, state_t* block_state){
 			copyState(block_state, &(current->p_s));
 			insertBlocked(semaddr, current);
 			outProcQ(&(ready_queue.p_next), current);
+			current->total_time_kernel += (getClock() - current->last_syscall_time);
+			current->middle_time = getClock();
 			current = NULL;
 			/*insertProcQ(&(blocked_queue.p_next), current);*/
 			scheduler(&(ready_queue.p_next));
