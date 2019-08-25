@@ -11,3 +11,9 @@ p5 starts
 p6 starts
 p7 starts
 p5 - try to cause a pgm trap access some non-existent memory
+pgmTrapHandler - Access non-existent memory
+p5 - try to generate a TLB exception
+memory management (tlb) trap - set user mode on
+p5 - try call sys13 in user mode for verify pass up
+High level SYS call from user mode process
+p5 - try to call P in user mode

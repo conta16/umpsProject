@@ -14,7 +14,7 @@ void tlb_handler(){
     SYSCALL(TERMINATEPROCESS, 0, 0, 0);
   else{
     copyState((state_t*)TLB_OLDAREA, current->tlb_old);
-    LDST(current->sysbk_new);
+    LDST(current->tlb_new);
   }
 }
 
@@ -32,6 +32,7 @@ void sysbk_handler(){
     if (!(current->spec_assigned[0]))
       SYSCALL(TERMINATEPROCESS, 0, 0, 0);
     else{
+      oldarea_pc_increment();
       copyState((state_t*)SYSBK_OLDAREA, current->sysbk_old);
       LDST(current->sysbk_new);
     }

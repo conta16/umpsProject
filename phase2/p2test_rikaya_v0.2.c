@@ -577,6 +577,9 @@ void p5() {
 
 	print("p5 - try to cause a pgm trap access some non-existent memory\n");
 	/* to cause a pgm trap access some non-existent memory */
+
+	void nothing(){}
+	nothing();
 	*p5MemLocation = *p5MemLocation + 1;		 /* Should cause a program trap */
 }
 

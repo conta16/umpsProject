@@ -60,7 +60,7 @@ void syscall_handler(){
 		break;
 	case SPECPASSUP:
 		oldarea_pc_increment();
-		spec_passup(old->reg_a1, old->reg_a1, old->reg_a2, old->reg_a3);
+		spec_passup(old->reg_a1, old->reg_a2, old->reg_a3);
 		break;
 	default: //in ogni altro caso, errore.
 		syscall_error();

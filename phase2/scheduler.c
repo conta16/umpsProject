@@ -35,13 +35,6 @@ void scheduler(struct list_head* head){
 		/*se il processore non ha un processo significa che il processo prima ha terminato la sua esecuzione
 		esattamente alla fine dell' ultimo time-slice quindi lo trattiamo come una nuova inizializzazione*/
 		if (!list_empty(&(ready_queue.p_next))){
-			/*void do_nothing(){}
-			int count = 0;
-		        struct list_head *tmp;
-        		list_for_each(tmp,head){
-                		count+=1;
-        		}
-        		if (count == 1) do_nothing();*/
 			scheduler_init(head);
 		}
 		else{
