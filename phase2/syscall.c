@@ -44,6 +44,7 @@ void syscall_handler(){
 		set_tutor();
 		break;
 	case GETPID:
+		oldarea_pc_increment();
 		get_pids(old->reg_a1, old->reg_a2);
 	  break;
 	case VERHOGEN:
@@ -105,9 +106,9 @@ void wait_clock(){
 }
 
 void get_pids(void ** pid, void ** ppid){
-	if (*pid != NULL)
+	if (pid != NULL)
 		*pid = current;
-	if (*ppid != NULL)
+	if (ppid != NULL)
 		*ppid = current->p_parent;
 }
 
@@ -176,11 +177,11 @@ int get_process(void **pid, struct list_head children){
 void kill_proc(pcb_t* pid/*void **pid*/){
 	pcb_t* proc = /*(pcb_t*) */ pid;
 	pcb_t* tmp;
-        pcb_t* tutor = find_tutor(proc);
+  pcb_t* tutor = find_tutor(proc);
 	while(!list_empty(&(proc->p_child))){
 		tmp = removeChild(proc);
 		tmp->p_parent = NULL;
-                insertChild(tutor,tmp);
+    insertChild(tutor,tmp);
 	}
 	outProcQ(&(ready_queue.p_next),proc);
 	if (proc == current) current = NULL;
