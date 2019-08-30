@@ -28,7 +28,7 @@ void pgmtrap_handler(){
 }
 
 void sysbk_handler(){
-  if ((((state_t*)SYSBK_OLDAREA)->status & 0x2) >> 1){
+  if ((((state_t*)SYSBK_OLDAREA)->status & 0x000002) >> 1){
 	void nothing(){}
 	nothing();
 	copyState((state_t*)SYSBK_OLDAREA,(state_t*)PGMTRAP_OLDAREA);
