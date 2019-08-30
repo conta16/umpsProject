@@ -32,8 +32,10 @@ int rcvPLT(){
 
 int getDevice(unsigned int inst_dev, unsigned int int_dev){
 	int i;
+	unsigned int *ptr1 = inst_dev;
+	unsigned int *ptr2 = int_dev;
 	for (i=0;i<8;i++)
-		if(get_bit(i,inst_dev) && get_bit(i,int_dev))
+		if(get_bit(i,*ptr1) && get_bit(i,*ptr2))
 			return i;
 	return -1;
 }
@@ -102,18 +104,18 @@ extern void int_handler(){
 	  verhogen((int)&(keys[24+i]));
     }
   else if (line == IL_TERMINAL+8){
-    term_register = (termreg_t *) DEV_REG_ADDR(IL_TERMINAL, 0);/*da mettere +i*/
     i = getDevice(INST_INT_LINE7,INT_DEV_LINE7);
+    term_register = (termreg_t *) DEV_REG_ADDR(IL_TERMINAL, i);/*da mettere +i*/
     if ((term_register->transm_status & (unsigned int)255) == CHAR_TRANSMD){
 	    wait_transm(&(term_register->transm_status));
 	    headBlocked((int*)&(keys[32]))->p_s.reg_v0=term_register->transm_status;
 	    term_register->transm_command = CMD_ACK;
-	    verhogen((int)&(keys[32]));/*da mettere +i*/
+	    verhogen((int)&(keys[32+i]));/*da mettere +i*/
 	    }
 	  if ((term_register->recv_status & (unsigned int)255) == CHAR_RECVD){
       headBlocked((int*)&(keys[40]))->p_s.reg_v0=term_register->recv_status;
       term_register->recv_command = CMD_ACK;
-		  verhogen((int)&(keys[40]));/*da mettere +i*/
+		  verhogen((int)&(keys[40+i]));/*da mettere +i*/
       }
     }
 	//if (current == NULL && !list_empty(&(ready_queue.p_next))) scheduler_init(&(ready_queue.p_next));

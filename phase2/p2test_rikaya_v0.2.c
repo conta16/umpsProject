@@ -426,7 +426,6 @@ void p3() {
 void p4() {
 	pid_t pid;
 	pid_t p42id;
-
 	switch (p4inc) {
 		case 1:
 			print("first incarnation of p4 starts\n");
@@ -524,7 +523,7 @@ void p5prog() {
 /* void p5mm(unsigned int cause) { */
 void p5mm() {
 	print("memory management (tlb) trap - set user mode on\n");
-	mstat_o.status = mstat_o.status & 0xFFFFFFF0;  /* user mode on */
+	mstat_o.status = mstat_o.status & 0xFFFFFFFF;  /* user mode on */
 	mstat_o.status &= VMOFF; /* disable VM */
 	mstat_o.pc_epc = (memaddr)p5b;  /* return to p5b */
 	mstat_o.reg_sp = p5Stack-FRAME_SIZE;				/* Start with a fresh stack */
@@ -578,8 +577,6 @@ void p5() {
 	print("p5 - try to cause a pgm trap access some non-existent memory\n");
 	/* to cause a pgm trap access some non-existent memory */
 
-	void nothing(){}
-	nothing();
 	*p5MemLocation = *p5MemLocation + 1;		 /* Should cause a program trap */
 }
 
