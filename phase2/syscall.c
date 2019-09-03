@@ -33,8 +33,8 @@ void syscall_handler(){
 		sys_return(old);
 		break;
 	case TERMINATEPROCESS: // se il tipo di chiamata è 3, chiamiamo il gestore deputato, poi lo scheduler
+		oldarea_pc_increment();
 		terminate_process((void **)(old->reg_a1));
-		scheduler(&(ready_queue.p_next));
 		break;
 	case WAITIO:
 		io_command(old->reg_a1, old->reg_a2, old->reg_a3);
@@ -165,10 +165,11 @@ void create_process(state_t *statep, int priority, void ** cpid){
 void set_tutor(){
 		current->tutor = 1;
 }
+
 int get_process(void **pid, struct list_head children){
         struct list_head *tmp;
         list_for_each(tmp,&children){
-                if (container_of(tmp,pcb_t,p_sib) == (pcb_t *) pid) return 0;
+                if (container_of(tmp,pcb_t,p_sib) == (pcb_t *) *pid) return 0;
                 if (!emptyChild(container_of(tmp,pcb_t,p_sib))) get_process(pid,container_of(tmp,pcb_t,p_sib)->p_child);
         }
         return -1;
@@ -195,11 +196,15 @@ pcb_t* find_tutor(pcb_t* pid){
 }
 int terminate_process(void **pid){
         if (pid != 0 && pid != NULL){
-                if (get_process(pid,current->p_child) == -1) return -1;
+                if (get_process(pid,current->p_child) == -1) old->reg_v0= (unsigned int)-1;
                 kill_proc((pcb_t *) *pid);
-        }
-        else kill_proc(/*(void **)*/current);
-        return 0;
+        				}
+        else {
+				kill_proc(/*(void **)*/current);
+				scheduler(&(ready_queue.p_next));
+				}
+				old->reg_v0 = 0;
+				return 0;
 }
 
 void verhogen(int* semaddr) {
