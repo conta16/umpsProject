@@ -26,3 +26,9 @@ p5 - try to redefine PGMVECT, it will cause p5 termination
 p1 knows p5 ended
 p8root starts
 child1 starts
+child2 starts
+intermediate starts (and dies)
+leaf process starts
+leaf process starts
+leaf process starts
+leaf process starts

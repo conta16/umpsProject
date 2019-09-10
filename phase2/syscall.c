@@ -33,7 +33,7 @@ void syscall_handler(){
 		sys_return(old);
 		break;
 	case TERMINATEPROCESS: // se il tipo di chiamata è 3, chiamiamo il gestore deputato, poi lo scheduler
-		oldarea_pc_increment();
+	oldarea_pc_increment();
 		terminate_process((void **)(old->reg_a1));
 		break;
 	case WAITIO:
@@ -41,6 +41,7 @@ void syscall_handler(){
 		sys_return(old);
 		break;
 	case SETTUTOR:
+		oldarea_pc_increment();
 		set_tutor();
 		break;
 	case GETPID:
