@@ -677,7 +677,10 @@ void p8root() {
 	SYSCALL(CREATEPROCESS, (int)&child1state, DEFAULT_PRIORITY, (pid_t)&childpid);
 	SYSCALL(CREATEPROCESS, (int)&child2state, DEFAULT_PRIORITY, 0);
 
+        void nothing6(){}
+
 	for (grandchild=0; grandchild < NOLEAVES; grandchild++) {
+        	nothing6();
 		SYSCALL(PASSEREN, (int)&endcreate, 0, 0);
 	}
 
@@ -730,6 +733,9 @@ void child2() {
 void p8leaf() {
 	print("leaf process starts\n");
 
+	void nothing7(){}
+	nothing7();
+
 	SYSCALL(VERHOGEN, (int)&endcreate, 0, 0);
 
 	SYSCALL(PASSEREN, (int)&blkp8, 0, 0);
@@ -742,6 +748,7 @@ void curiousleaf() {
 	print("leaf process starts\n");
 
 	SYSCALL(GETPID, 0, (unsigned int)&parentid, 0);
+
 	if (SYSCALL(TERMINATEPROCESS, (int)&parentid, 0, 0) == 0) {
 		print("error: curiousleaf killed its parent\n");
 		PANIC();
@@ -760,6 +767,9 @@ void curiousleaf() {
 		print("curiousleaf waiting...\n");
 		SYSCALL(WAITCLOCK, 0, 0, 0);
 	}
+
+	void nothing11(){}
+	nothing11();
 
 	SYSCALL(VERHOGEN, (int)&endcreate, 0, 0);
 

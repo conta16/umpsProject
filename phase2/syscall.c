@@ -167,17 +167,24 @@ void set_tutor(){
 		current->tutor = 1;
 }
 
-int get_process(void **pid, struct list_head children){
+/*int get_process(void **pid, struct list_head children){
         struct list_head *tmp;
         list_for_each(tmp,&children){
                 if (container_of(tmp,pcb_t,p_sib) == (pcb_t *) *pid) return 0;
-                if (!emptyChild(container_of(tmp,pcb_t,p_sib))) get_process(pid,container_of(tmp,pcb_t,p_sib)->p_child);
+                //if (!emptyChild(container_of(tmp,pcb_t,p_sib))) get_process(pid,container_of(tmp,pcb_t,p_sib)->p_child);
+		if ((container_of(tmp,pcb_t,p_sib)->p_child).next != &(container_of(tmp,pcb_t,p_sib)->p_child)) get_process(pid,container_of(tmp,pcb_t,p_sib)->p_child);
         }
         return -1;
+}*/
+
+int get_process(pcb_t *pid){
+	if (pid->p_parent == NULL) return -1;
+	if (pid->p_parent == current) return 0;
+	else return get_process(pid->p_parent);
 }
 
-void kill_proc(pcb_t* pid/*void **pid*/){
-	pcb_t* proc = /*(pcb_t*) */ pid;
+void kill_proc(pcb_t* pid){
+	pcb_t* proc = pid;
 	pcb_t* tmp;
 	pcb_t* tutor = find_tutor(proc);
 	while(!list_empty(&(proc->p_child))){
@@ -187,7 +194,9 @@ void kill_proc(pcb_t* pid/*void **pid*/){
 	}
 	if (proc->p_semkey != NULL) *(proc->p_semkey)+=1;
 	outProcQ(&(ready_queue.p_next),proc);
-	if (proc == current) current = NULL;
+	if (proc == current){
+		current = NULL;
+	}
         freePcb(proc);
 }
 
@@ -198,15 +207,15 @@ pcb_t* find_tutor(pcb_t* pid){
 }
 int terminate_process(void **pid){
         if (pid != 0 && pid != NULL){
-                if (get_process(pid,current->p_child) == -1) old->reg_v0= (unsigned int)-1;
-                kill_proc((pcb_t *) *pid);
-        				}
+                if (get_process((pcb_t*) *pid) == -1) old->reg_v0= (unsigned int)-1;
+                else kill_proc((pcb_t *) *pid);
+       	}
         else {
-				kill_proc(/*(void **)*/current);
-				scheduler(&(ready_queue.p_next));
-				}
+				kill_proc(current);
 				old->reg_v0 = 0;
-				return 0;
+				scheduler(&(ready_queue.p_next));
+	}
+	return 0;
 }
 
 void verhogen(int* semaddr) {
