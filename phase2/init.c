@@ -58,7 +58,7 @@ void init_pcbs(){
 	setBit(IEc,&(test_pcb->p_s.status),1);
 	setBit(VMc,&(test_pcb->p_s.status),0);
 	setBit(TE,&(test_pcb->p_s.status),1);
-	setBit(KUc,&(test_pcb->p_s.status),0);
+	setBit(KUc,&(test_pcb->p_s.status),1);
 	test_pcb->p_s.status|=(255<<8);
 					/*Abilito tutti gli interrupt tranne quelli da terminale (che verrà messo a posto nella prossima fase).
 					E' disabilitato perchè non mandando l'ack dell'interrupt, appena viene caricato il nuovo pcb da scheduler, il controllo viene

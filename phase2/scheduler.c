@@ -16,12 +16,16 @@
 #include "pcb.h"
 #include "const_rikaya.h"
 
+#define SEMAPHORE S32
+
 extern pcb_t* idle;
 extern pcb_t ready_queue;
+extern SEMAPHORE blkp4;
 pcb_t* current;
 
 void scheduler(struct list_head* head){
-	//setSTATUS(getSTATUS()|5);
+	void nothing4(){}
+	if (blkp4 == -1) nothing4();
 	if (current==idle) current=NULL;
 	if (current!=NULL){
 		current->priority = current->original_priority;/*se il processore ha un processo ne riaggiorniamo la priorità, settandola a quella originale*/

@@ -5,7 +5,7 @@
 #include "pcb.h"
 
 static semd_t semd_table[MAXPROC];
-static semd_t semdFree_h;
+semd_t semdFree_h;
 static semd_t semd_h;
 
 unsigned int keys[49];
@@ -80,6 +80,7 @@ pcb_t* removeBlocked(int *key){
 			list_del(s);
 			list_add_tail(s, &(semdFree_h.s_next));
 		}
+		pcb->p_semkey = NULL;
 		return pcb;
 	}
 }

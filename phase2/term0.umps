@@ -24,3 +24,5 @@ High level SYS call from user mode process
 p5 - try to call P in user mode
 p5 - try to redefine PGMVECT, it will cause p5 termination
 p1 knows p5 ended
+p8root starts
+child1 starts

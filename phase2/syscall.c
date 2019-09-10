@@ -178,12 +178,13 @@ int get_process(void **pid, struct list_head children){
 void kill_proc(pcb_t* pid/*void **pid*/){
 	pcb_t* proc = /*(pcb_t*) */ pid;
 	pcb_t* tmp;
-  pcb_t* tutor = find_tutor(proc);
+	pcb_t* tutor = find_tutor(proc);
 	while(!list_empty(&(proc->p_child))){
 		tmp = removeChild(proc);
 		tmp->p_parent = NULL;
-    insertChild(tutor,tmp);
+    		if(tutor != proc) insertChild(tutor,tmp);
 	}
+	if (proc->p_semkey != NULL) *(proc->p_semkey)+=1;
 	outProcQ(&(ready_queue.p_next),proc);
 	if (proc == current) current = NULL;
         freePcb(proc);
@@ -208,7 +209,7 @@ int terminate_process(void **pid){
 }
 
 void verhogen(int* semaddr) {
-  pcb_t* tmp;
+	pcb_t* tmp;
 	*semaddr+=1;
 	tmp=removeBlocked(semaddr);
 	if (tmp!=NULL)

@@ -8,7 +8,7 @@
  *	Test program for the Rikaya Kernel: phase 2.
  *
  *	Produces progress messages on Terminal0.
- *
+ *	
  *	This is pretty convoluted code, so good luck!
  *
  *		Aborts as soon as an error is detected.
@@ -55,7 +55,7 @@ typedef unsigned int pid_t;
 #define LOOPNUM 		10000
 
 #define CLOCKLOOP		10
-#define MINCLOCKLOOP	3000
+#define MINCLOCKLOOP	3000	
 
 #define BADADDR			0xFFFFFFFF /* could be 0x00000000 as well */
 #define TERM0ADDR       0x10000250
@@ -99,7 +99,7 @@ state_t pstat_n, mstat_n, sstat_n, pstat_o,	mstat_o, sstat_o;
 
 int		p1p2synch = 0;	/* to check on p1/p2 synchronization */
 
-int 	p8inc;			/* p8's incarnation number */
+int 	p8inc;			/* p8's incarnation number */ 
 int		p4inc=1;		/* p4 incarnation number */
 
 unsigned int p5Stack;	/* so we can allocate new stack for 2nd p5 */
@@ -124,7 +124,7 @@ void print(char *msg) {
 	SYSCALL(PASSEREN, (int)&term_mut, 0, 0);				/* get term_mut lock */
 
 	while (*s != '\0') {
-		/* Put "transmit char" command+char in term0 register (3rd word). This
+		/* Put "transmit char" command+char in term0 register (3rd word). This 
 			 actually starts the operation on the device! */
 		command = PRINTCHR | (((devregtr) *s) << BYTELEN);
 
@@ -139,7 +139,7 @@ void print(char *msg) {
 		if (((status & TERMCHARMASK) >> BYTELEN) != *s)
 			PANIC();
 
-		s++;
+		s++;	
 	}
 
 	SYSCALL(VERHOGEN, (int)&term_mut, 0, 0);				/* release term_mut */
@@ -149,7 +149,7 @@ void print(char *msg) {
 /*                                                                   */
 /*                 p1 -- the root process                            */
 /*                                                                   */
-void test() {
+void test() {	
 
 	SYSCALL(VERHOGEN, (int)&testsem, 0, 0);					/* V(testsem)   */
 
@@ -289,6 +289,9 @@ void test() {
 
 	print("p1 knows p5 ended\n");
 
+	void nothing2(){}
+	if (blkp4 == 0) nothing2();
+
 	SYSCALL(PASSEREN, (int)&blkp4, 0, 0);					/* P(blkp4)		*/
 
 	/* now for a more rigorous check of process termination */
@@ -426,6 +429,7 @@ void p3() {
 void p4() {
 	pid_t pid;
 	pid_t p42id;
+
 	switch (p4inc) {
 		case 1:
 			print("first incarnation of p4 starts\n");
@@ -449,10 +453,16 @@ void p4() {
 
 	SYSCALL(VERHOGEN, (int)&synp4, 0, 0);				/* V(synp4)     */
 
+	void nothing3(){}
+	if (blkp4 == 1) nothing3();
+
 	/* first incarnation made blkp4=0, the second is blocked (blkp4 become -1) */
 	SYSCALL(PASSEREN, (int)&blkp4, 0, 0);				/* P(blkp4)     */
 
 	SYSCALL(PASSEREN, (int)&synp4, 0, 0);				/* P(synp4)     */
+
+	void nothing5(){}
+	if (blkp4 == -1) nothing5();
 
 	/* start another incarnation of p4 running, and wait for  */
 	/* a V(synp4). the new process will block at the P(blkp4),*/
@@ -523,7 +533,7 @@ void p5prog() {
 /* void p5mm(unsigned int cause) { */
 void p5mm() {
 	print("memory management (tlb) trap - set user mode on\n");
-	mstat_o.status = mstat_o.status & 0xFFFFFFFF;  /* user mode on */
+	mstat_o.status = mstat_o.status & 0xFFFFFFF0;  /* user mode on */
 	mstat_o.status &= VMOFF; /* disable VM */
 	mstat_o.pc_epc = (memaddr)p5b;  /* return to p5b */
 	mstat_o.reg_sp = p5Stack-FRAME_SIZE;				/* Start with a fresh stack */
@@ -538,13 +548,13 @@ void p5mm() {
 /* void p5sys(unsigned int cause) { */
 void p5sys() {
 	unsigned int p5status = sstat_o.status;
-	p5status = p5status & 0xF;
+	p5status = p5status & 0xF; 
 	if(p5status){
 		print("High level SYS call from kernel mode process\n");
 	} else {
 		print("High level SYS call from user mode process\n");
 		print("p5 - try to call P in user mode\n");
-	}
+	}	
 	LDST(&sstat_o);
 }
 
@@ -575,8 +585,7 @@ void p5() {
 	SYSCALL(SPECPASSUP, 0, (int)&sstat_o, (int)&sstat_n);
 
 	print("p5 - try to cause a pgm trap access some non-existent memory\n");
-	/* to cause a pgm trap access some non-existent memory */
-
+	/* to cause a pgm trap access some non-existent memory */	
 	*p5MemLocation = *p5MemLocation + 1;		 /* Should cause a program trap */
 }
 
@@ -585,7 +594,7 @@ void p5a() {
 
 	print("p5 - try to generate a TLB exception\n");
 
-	/* generate a TLB exception by turning on VM without setting up the
+	/* generate a TLB exception by turning on VM without setting up the 
 		 seg tables */
 	p5Status = getSTATUS();
 	p5Status = p5Status | 0x03000000;
@@ -597,9 +606,6 @@ void p5b() {
 	cpu_t		time1, time2;
 
 	SYSCALL(13, 0, 0, 0);
-
-	void no2(){}
-	no2();
 
 	/* the first time through, we are in user mode */
 	/* and the P should generate a program trap */
@@ -640,7 +646,7 @@ void p5b() {
 void p6() {
 	print("p6 starts\n");
 
-	SYSCALL(13, 0, 0, 0);		/* should cause termination because p6 has no
+	SYSCALL(13, 0, 0, 0);		/* should cause termination because p6 has no 
 														 trap vector */
 
 	print("error: p6 alive after SYS13() with no trap vector\n");
