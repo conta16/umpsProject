@@ -194,6 +194,7 @@ void kill_proc(pcb_t* pid){
 	}
 	if (proc->p_semkey != NULL) *(proc->p_semkey)+=1;
 	outProcQ(&(ready_queue.p_next),proc);
+	list_del(&(proc->p_sib));
 	if (proc == current){
 		current = NULL;
 	}
