@@ -25,7 +25,7 @@ typedef char word;
 #define CMD_TRANSMIT       2
 
 void wait(){
-	while(1);
+	 while(1);
 }
 
 /*input:

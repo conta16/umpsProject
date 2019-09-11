@@ -32,8 +32,8 @@ int rcvPLT(){
 
 int getDevice(unsigned int inst_dev, unsigned int int_dev){
 	int i;
-	unsigned int *ptr1 = inst_dev;
-	unsigned int *ptr2 = int_dev;
+	unsigned int *ptr1 = (unsigned int*)inst_dev;
+	unsigned int *ptr2 = (unsigned int*)int_dev;
 	for (i=0;i<8;i++)
 		if(get_bit(i,*ptr1) && get_bit(i,*ptr2))
 			return i;
