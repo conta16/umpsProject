@@ -20,12 +20,9 @@
 
 extern pcb_t* idle;
 extern pcb_t ready_queue;
-extern SEMAPHORE blkp4;
 pcb_t* current;
 
 void scheduler(struct list_head* head){
-	void nothing4(){}
-	if (blkp4 == -1) nothing4();
 	if (current==idle) current=NULL;
 	if (current!=NULL){
 		current->priority = current->original_priority;/*se il processore ha un processo ne riaggiorniamo la priorità, settandola a quella originale*/
@@ -42,6 +39,8 @@ void scheduler(struct list_head* head){
 			scheduler_init(head);
 		}
 		else{
+			void nothing13(){}
+			nothing13();
 			current = idle;
 			setTIMER(3000*TIME_SCALE);
 			LDST(&(current->p_s));

@@ -9,13 +9,14 @@
 */
 
 #include "utils.h"
+#include "scheduler.h"
 #include "types_rikaya.h"
 #include "umps/libumps.h"
 #include "umps/arch.h"
 #include "umps/types.h"
 #include "const_rikaya.h"
 typedef char word;
-
+extern pcb_t ready_queue;
 
 #define ST_READY           1
 #define ST_BUSY            3
@@ -25,7 +26,7 @@ typedef char word;
 #define CMD_TRANSMIT       2
 
 void wait(){
-	 while(1);
+	while(1);
 }
 
 /*input:

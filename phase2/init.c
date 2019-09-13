@@ -76,7 +76,7 @@ void init_pcbs(){
 
 	idle = allocPcb();
 
-        setBit(IEc,&(idle->p_s.status),1);
+        setBit(IEc,&(idle->p_s.status),0);
         setBit(VMc,&(idle->p_s.status),0);
         setBit(TE,&(idle->p_s.status),1);
         setBit(KUc,&(idle->p_s.status),0);
