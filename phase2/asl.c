@@ -102,8 +102,8 @@ pcb_t* outBlocked(pcb_t *p){
 			{
 				list_del(&(p->p_next));
 				if (list_empty(&(tmp->s_procQ))){
-					list_del(&(tmp->s_procQ));
-					list_add_tail(&(tmp->s_procQ), &(semdFree_h.s_next));
+					list_del(&(tmp->s_next));
+					list_add_tail(&(tmp->s_next), &(semdFree_h.s_next));
 				}
 				return p;
 			}
