@@ -28,7 +28,7 @@ extern pcb_t ready_queue;
 void wait(){
 	WAIT();
 	scheduler(&(ready_queue.p_next));
-	//while(1);
+
 }
 
 /*input:
