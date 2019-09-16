@@ -42,8 +42,6 @@ void scheduler(struct list_head* head){
 			current = idle;
 			setTIMER(3000*TIME_SCALE);
 			setSTATUS(getSTATUS() & (unsigned int)(~(1)));
-			void nothing20(){}
-			nothing20();
 			LDST(&(current->p_s));
 		}
 	}

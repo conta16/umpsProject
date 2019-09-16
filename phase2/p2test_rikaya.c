@@ -289,8 +289,6 @@ void test() {
 
 	print("p1 knows p5 ended\n");
 
-	void nothing2(){}
-	if (blkp4 == 0) nothing2();
 
 	SYSCALL(PASSEREN, (int)&blkp4, 0, 0);					/* P(blkp4)		*/
 
@@ -453,16 +451,12 @@ void p4() {
 
 	SYSCALL(VERHOGEN, (int)&synp4, 0, 0);				/* V(synp4)     */
 
-	void nothing3(){}
-	if (blkp4 == 1) nothing3();
 
 	/* first incarnation made blkp4=0, the second is blocked (blkp4 become -1) */
 	SYSCALL(PASSEREN, (int)&blkp4, 0, 0);				/* P(blkp4)     */
 
 	SYSCALL(PASSEREN, (int)&synp4, 0, 0);				/* P(synp4)     */
 
-	void nothing5(){}
-	if (blkp4 == -1) nothing5();
 
 	/* start another incarnation of p4 running, and wait for  */
 	/* a V(synp4). the new process will block at the P(blkp4),*/
@@ -685,8 +679,6 @@ void p8root() {
 
 	SYSCALL(VERHOGEN, (int)&endp8, 0, 0);
 
-	void paniccia(){}
-	paniccia();
 
 	SYSCALL(TERMINATEPROCESS, 0, 0, 0);
 }
