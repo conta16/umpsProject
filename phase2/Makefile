@@ -6,7 +6,7 @@ LD = $(XT_PRG_PREFIX)ld
 #umps2 installation directory, change if incorrect.
 UMPS2_DIRECTORY = /usr/local
 CFLAGS_LANG = -ffreestanding -ansi
-CFLAGS_MIPS = -mips1 -mabi=32 -mno-gpopt -std=gnu11 -G 0 -mno-abicalls -fno-pic -mfp32 -nostdlib
+CFLAGS_MIPS = -mips1 -mabi=32 -mno-gpopt -std=gnu11 -G 0 -mabicalls -fno-plt -mfp32 -nostdlib
 CFLAGS = $(CFLAGS_LANG) $(CFLAGS_MIPS) -I$(UMPS2_DIRECTORY)/include/umps2/ -I. -Wall -O0
 
 all : kernel.core.umps
