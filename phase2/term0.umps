@@ -11,8 +11,4 @@ p5 starts
 p4 create a new p4
 p6 starts
 p7 starts
-p5 - try to cause a pgm trap access some non-existent memory
-second incarnation of p4 starts
-pgmTrapHandler - Access non-existent memory
-p4 termination of the child
-p5 - 
+p5 - try to cause a pgm trap access some non-existent memor
