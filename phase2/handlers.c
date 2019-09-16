@@ -31,8 +31,6 @@ void sysbk_handler(){
   int KUmode;
   KUmode = (((state_t*)SYSBK_OLDAREA)->status & 0x00000008) >> 3;
   if (KUmode){
-        void nothing(){}
-        nothing();
 	copyState((state_t*)SYSBK_OLDAREA,(state_t*)PGMTRAP_OLDAREA);
 	setCAUSE(getCAUSE() | 0x00000028);
 	pgmtrap_handler();

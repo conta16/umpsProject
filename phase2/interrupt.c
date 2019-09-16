@@ -23,6 +23,8 @@
 extern pcb_t* current;
 extern pcb_t ready_queue;
 extern unsigned int keys[49];
+extern pcb_t *idle;
+
 int rcvPLT(){
         unsigned int tmp = getCAUSE();
 	tmp = tmp >> 8;
@@ -63,6 +65,7 @@ extern void int_handler(){
 	dtpreg_t* dev_register;
 	termreg_t* term_register;
 	int line = getLineInt();
+  if (current == idle) copyState(&(idle->p_s), (state_t *)INT_OLDAREA) ;
 	if (line == IL_IPI+8){
 		/*nessuna azione significativa è associata a questa linea per questa fase: mi limito a mandare l'ack, senza sapere quale processore ha mandato l'interrupt*/
 		unsigned int *tmp = (unsigned int*) INBOX;

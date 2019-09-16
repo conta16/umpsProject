@@ -4,7 +4,12 @@ XT_PRG_PREFIX = mipsel-linux-gnu-
 CC = $(XT_PRG_PREFIX)gcc
 LD = $(XT_PRG_PREFIX)ld
 #umps2 installation directory, change if incorrect.
-UMPS2_DIRECTORY = /usr/local
+ifneq ($(wildcard /usr/bin/umps2),)
+	UMPS2_DIRECTORY = /usr
+else
+	UMPS2_DIRECTORY = /usr/local
+endif
+
 CFLAGS_LANG = -ffreestanding -ansi
 CFLAGS_MIPS = -mips1 -mabi=32 -mno-gpopt -std=gnu11 -G 0 -mabicalls -fno-plt -mfp32 -nostdlib
 CFLAGS = $(CFLAGS_LANG) $(CFLAGS_MIPS) -I$(UMPS2_DIRECTORY)/include/umps2/ -I. -Wall -O0

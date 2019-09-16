@@ -26,9 +26,9 @@ extern pcb_t ready_queue;
 #define CMD_TRANSMIT       2
 
 void wait(){
-	//setSTATUS(getSTATUS() & (unsigned int)(~(2)));
-	//while(1);
-	while(1) WAIT();
+	WAIT();
+	scheduler(&(ready_queue.p_next));
+
 }
 
 /*input:
