@@ -26,18 +26,18 @@ void syscall_handler(){
 	switch (syscall){
 	case GETCPUTIME:
 		oldarea_pc_increment();
-		get_time(old->reg_a1, old->reg_a2, old->reg_a3);
+		get_time((unsigned int *)old->reg_a1, (unsigned int *)old->reg_a2, (unsigned int *)old->reg_a3);
 		break;
 	case CREATEPROCESS:
-		create_process(old->reg_a1, old->reg_a2, old->reg_a3);
+		create_process((state_t * )old->reg_a1, old->reg_a2, (void **)old->reg_a3);
 		sys_return(old);
 		break;
-	case TERMINATEPROCESS: // se il tipo di chiamata è 3, chiamiamo il gestore deputato, poi lo scheduler
+	case TERMINATEPROCESS: // se il tipo di chiamata e' 3, chiamiamo il gestore deputato, poi lo scheduler
 	oldarea_pc_increment();
 		terminate_process((void **)(old->reg_a1));
 		break;
 	case WAITIO:
-		io_command(old->reg_a1, old->reg_a2, old->reg_a3);
+		io_command(old->reg_a1, (unsigned int *)old->reg_a2, old->reg_a3);
 		sys_return(old);
 		break;
 	case SETTUTOR:
@@ -46,15 +46,15 @@ void syscall_handler(){
 		break;
 	case GETPID:
 		oldarea_pc_increment();
-		get_pids(old->reg_a1, old->reg_a2);
+		get_pids((void **)old->reg_a1, (void **)old->reg_a2);
 	  break;
 	case VERHOGEN:
 		oldarea_pc_increment();
-		verhogen(old->reg_a1);
+		verhogen((int *)old->reg_a1);
 		break;
 	case PASSEREN:
 	  oldarea_pc_increment();
-		passeren(old->reg_a1, old);
+		passeren((int *)old->reg_a1, old);
 		break;
 	case WAITCLOCK:
 		oldarea_pc_increment();
@@ -62,7 +62,7 @@ void syscall_handler(){
 		break;
 	case SPECPASSUP:
 		oldarea_pc_increment();
-		spec_passup(old->reg_a1, old->reg_a2, old->reg_a3);
+		spec_passup(old->reg_a1,(state_t *) old->reg_a2,(state_t *) old->reg_a3);
 		break;
 	default: //in ogni altro caso, errore.
 		syscall_error();
@@ -94,26 +94,26 @@ void syscall_error(){
 	PANIC();
 }
 
-void oldarea_pc_increment(){ //utility: affinchè dopo la syscall, il processo chiamante possap prosegire, occorre incrementare il pc di tale processo. Non ancora utilizzata.
+void oldarea_pc_increment(){ //utility: affinche' dopo la syscall, il processo chiamante possap prosegire, occorre incrementare il pc di tale processo. Non ancora utilizzata.
 	state_t* old=(state_t*)SYSBK_OLDAREA;
 	old->pc_epc+=4;
-	old->reg_t9=old->pc_epc; //per regioni architetturali, un incremento di pc non è valideo se non viene anche incrementato t9.
+	old->reg_t9=old->pc_epc; //per regioni architetturali, un incremento di pc non e' valideo se non viene anche incrementato t9.
 }
 
 void wait_clock(){
 	unsigned int *tmp = (unsigned int *)I_TIMER;
 	*tmp = (unsigned int) 100000*TIME_SCALE;
-	passeren((unsigned int)&(keys[48]), (state_t*) SYSBK_OLDAREA);
+	passeren((int *)&(keys[48]), (state_t*) SYSBK_OLDAREA);
 }
 
-void get_pids(void ** pid, void ** ppid){
+void get_pids(void ** pid, void ** ppid){ 		//semplice copia dei valori dal pcb
 	if (pid != NULL)
 		*pid = current;
 	if (ppid != NULL)
 		*ppid = current->p_parent;
 }
 
-void get_time (unsigned int *user, unsigned int *kernel, unsigned int *wallclock){
+void get_time (unsigned int *user, unsigned int *kernel, unsigned int *wallclock){ //semplice copia dei valori dal pcb
 	if (user != NULL)
 		*user = current->total_time_user;
 	if (kernel != NULL)
@@ -142,25 +142,25 @@ void io_command(unsigned int command, unsigned int *ourReg, int type){
 	else if (type == 0) old->reg_v0 = termreg->transm_status;
 	else old->reg_v0 = termreg->recv_status;
 	oldarea_pc_increment();
-	passeren(semd_id, (state_t*) SYSBK_OLDAREA);
+	passeren((int *)semd_id, (state_t*) SYSBK_OLDAREA);
 }
 
 void create_process(state_t *statep, int priority, void ** cpid){
 	int i;
-	pcb_t* p = allocPcb();
-	if (p == NULL){
+	pcb_t* p = allocPcb();//allochiamo un nuovo pcb
+	if (p == NULL){				//se allocPcb ritorna NULL, allora non e' possibile allocare altri pcb
 		old->reg_v0 = -1;
-		return;
+		return;							//ritorna -1
 	}
-	insertChild(current,p);
-	insertProcQ(&(ready_queue.p_next), p);
+	insertChild(current,p);//il pcb viene aggiunto nella coda dei figli del processo current
+	insertProcQ(&(ready_queue.p_next), p);//il pcb viene aggiunto alla ready queue
 	char *c = (char *)&(p->p_s);
 	char *d = (char *)statep;
   for (i=0; i<sizeof(state_t); i++,c++,d++)	/* Ciclo di scorrimento per copiare il campo statep in p_s*/
     *c=*d;
 	p->priority = priority;
-	p->original_priority = priority;
-	if (cpid!=NULL) *cpid = (void **)p; 				/*---------- dubbio --------------*/
+	p->original_priority = priority; //viene settata la priorita' del processo figlio
+	if (cpid!=NULL) *cpid = (void **)p;
 	old->reg_v0 = 0;
 }
 void set_tutor(){
@@ -227,32 +227,32 @@ int terminate_process(void **pid){
 
 void verhogen(int* semaddr) {
 	pcb_t* tmp;
-	*semaddr+=1;
-	tmp=removeBlocked(semaddr);
+	*semaddr+=1;  //il valore del semaforo viene aumentato
+	tmp=removeBlocked(semaddr);  //se c'e' un processo in coda, viene rimosso
 	if (tmp!=NULL)
-		insertProcQ(&(ready_queue.p_next), tmp);
+		insertProcQ(&(ready_queue.p_next), tmp); //il processo in coda viene aggiunto alla ready queue
 }
 
 void passeren(int* semaddr, state_t* block_state){
-		*semaddr-=1;
+		*semaddr-=1;  //il semaforo viene decrementato
 		if (*semaddr<0){
-			copyState(block_state, &(current->p_s));
-			insertBlocked(semaddr, current);
-			outProcQ(&(ready_queue.p_next), current);
-			current->total_time_kernel += (getClock() - current->last_syscall_time);
+			copyState(block_state, &(current->p_s)); //lo stato di "riavvio" viene salvato
+			insertBlocked(semaddr, current);         //il processo corrente viene aggiunto alla coda dei processi bliccati al semaforo
+			//outProcQ(&(ready_queue.p_next), current);//se il processo e' nella ready queue, viene rimosso
+			current->total_time_kernel += (getClock() - current->last_syscall_time); //contabilita' dei tempi
 			current->middle_time = getClock();
 			current = NULL;
-			/*insertProcQ(&(blocked_queue.p_next), current);*/
-			scheduler(&(ready_queue.p_next));
+			scheduler(&(ready_queue.p_next));  			//viene chiamato lo scheduler per avviare un nuovo processo
 		}
 }
 
 int spec_passup(int type, state_t* old, state_t* new){
-	if(current->spec_assigned[type]){
+	if(current->spec_assigned[type]){ //se e' gia' stata effettuata una spec_passup, la chiamata ha esito negativo
+		old->reg_v0=-1;
 		return -1;
 	}
 	current->spec_assigned[type]=1;
-	switch (type) {
+	switch (type) {		//altrimenti in base al valore type, vengono settate le nuove old_area e new_area
 		case 0:
 			current->sysbk_old=old;
 			current->sysbk_new=new;
@@ -266,5 +266,6 @@ int spec_passup(int type, state_t* old, state_t* new){
 			current->pgmtrap_new=new;
 			break;
 	}
+	old->reg_v0=0; //ed in tal caso l'esito della chiamata e' positivo
 	return 0;
 }

@@ -80,31 +80,31 @@ extern void int_handler(){
 		unsigned int *tmp = (unsigned int *)I_TIMER;
     *tmp = (unsigned int)-1;
     while(getSemd((int *)&(keys[48])) != NULL)
-      verhogen((int)&(keys[48])); //non mi ricordo per quale cazzo di motivo ho fatto un ciclo qui
+      verhogen((int *)&(keys[48])); //non mi ricordo per quale cazzo di motivo ho fatto un ciclo qui
     }
 	else if (line == IL_DISK+8){
 		i = getDevice(INST_INT_LINE3,INT_DEV_LINE3);
 		dev_register = (dtpreg_t *) DEV_REG_ADDR(IL_DISK, i);
 		dev_register->command = CMD_ACK;
-		verhogen((int)&(keys[i]));
+		verhogen((int *)&(keys[i]));
 	}
   else if (line == IL_TAPE+8){
 		i = getDevice(INST_INT_LINE4,INT_DEV_LINE4);
 		dev_register = (dtpreg_t *) DEV_REG_ADDR(IL_TAPE, i);
 		dev_register->command = CMD_ACK;
-		verhogen((int)&(keys[8+i]));
+		verhogen((int *)&(keys[8+i]));
     }
   else if (line == IL_ETHERNET+8){
     i = getDevice(INST_INT_LINE5,INT_DEV_LINE5);
     dev_register = (dtpreg_t *) DEV_REG_ADDR(IL_ETHERNET, i);
     dev_register->command = CMD_ACK;
-	  verhogen((int)&(keys[16+i]));
+	  verhogen((int *)&(keys[16+i]));
     }
   else if (line == IL_PRINTER+8){
     i = getDevice(INST_INT_LINE6,INT_DEV_LINE6);
 	  dev_register = (dtpreg_t *) DEV_REG_ADDR(IL_PRINTER, i);
     dev_register->command = CMD_ACK;
-	  verhogen((int)&(keys[24+i]));
+	  verhogen((int *)&(keys[24+i]));
     }
   else if (line == IL_TERMINAL+8){
     i = getDevice(INST_INT_LINE7,INT_DEV_LINE7);
@@ -113,12 +113,12 @@ extern void int_handler(){
 	    wait_transm(&(term_register->transm_status));
 	    headBlocked((int*)&(keys[32]))->p_s.reg_v0=term_register->transm_status;
 	    term_register->transm_command = CMD_ACK;
-	    verhogen((int)&(keys[32+i]));/*da mettere +i*/
+	    verhogen((int *)&(keys[32+i]));/*da mettere +i*/
 	    }
 	  if ((term_register->recv_status & (unsigned int)255) == CHAR_RECVD){
       headBlocked((int*)&(keys[40]))->p_s.reg_v0=term_register->recv_status;
       term_register->recv_command = CMD_ACK;
-		  verhogen((int)&(keys[40+i]));/*da mettere +i*/
+		  verhogen((int *)&(keys[40+i]));/*da mettere +i*/
       }
     }
 	//if (current == NULL && !list_empty(&(ready_queue.p_next))) scheduler_init(&(ready_queue.p_next));
