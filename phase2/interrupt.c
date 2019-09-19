@@ -76,17 +76,10 @@ extern void int_handler(){
 	}
 	else if (line == IL_TIMER+8){
 		unsigned int *tmp = (unsigned int *)I_TIMER;
-<<<<<<< HEAD
    		*tmp = (unsigned int)-1;
    		while(getSemd((int *)&(keys[48])) != NULL)
-      			verhogen((int)&(keys[48])); //libero tutti i processi bloccati dalla syscall wait_clock
+      			verhogen((int*)&(keys[48])); //libero tutti i processi bloccati dalla syscall wait_clock
 	}
-=======
-    *tmp = (unsigned int)-1;
-    while(getSemd((int *)&(keys[48])) != NULL)
-      verhogen((int *)&(keys[48])); //non mi ricordo per quale cazzo di motivo ho fatto un ciclo qui
-    }
->>>>>>> 99c38a11c412c66690a3de44085cb724c517c3eb
 	else if (line == IL_DISK+8){
 		i = getDevice(INST_INT_LINE3,INT_DEV_LINE3);
 		dev_register = (dtpreg_t *) DEV_REG_ADDR(IL_DISK, i);
@@ -97,20 +90,19 @@ extern void int_handler(){
 		i = getDevice(INST_INT_LINE4,INT_DEV_LINE4);
 		dev_register = (dtpreg_t *) DEV_REG_ADDR(IL_TAPE, i);
 		dev_register->command = CMD_ACK;
-<<<<<<< HEAD
-		verhogen((int)&(keys[8+i]));
+		verhogen((int*)&(keys[8+i]));
 	}
 	else if (line == IL_ETHERNET+8){
 		i = getDevice(INST_INT_LINE5,INT_DEV_LINE5);
 		dev_register = (dtpreg_t *) DEV_REG_ADDR(IL_ETHERNET, i);
 		dev_register->command = CMD_ACK;
-		verhogen((int)&(keys[16+i]));
+		verhogen((int*)&(keys[16+i]));
 	}
 	else if (line == IL_PRINTER+8){
 		i = getDevice(INST_INT_LINE6,INT_DEV_LINE6);
 		dev_register = (dtpreg_t *) DEV_REG_ADDR(IL_PRINTER, i);
 		dev_register->command = CMD_ACK;
-		verhogen((int)&(keys[24+i]));
+		verhogen((int*)&(keys[24+i]));
 	}
 	else if (line == IL_TERMINAL+8){
 		i = getDevice(INST_INT_LINE7,INT_DEV_LINE7);
@@ -118,45 +110,13 @@ extern void int_handler(){
 		if ((term_register->transm_status & 255) == CHAR_TRANSMD){ //transm_status occupa 4 byte, dove il primo è lo stato e il secondo è il carattere. Con &255 consideriamo solo lo stato
 			headBlocked((int*)&(keys[32+i]))->p_s.reg_v0=term_register->transm_status;
 			term_register->transm_command = CMD_ACK;
-			verhogen((int)&(keys[32+i]));
+			verhogen((int*)&(keys[32+i]));
 		}
 		if ((term_register->recv_status & 255) == CHAR_RECVD){ //recv_status occupa 4 byte, dove il primo è lo stato e il secondo è il carattere. Con &255 consideriamo solo lo stato
 			headBlocked((int*)&(keys[40+i]))->p_s.reg_v0=term_register->recv_status;
 			term_register->recv_command = CMD_ACK;
-			verhogen((int)&(keys[40+i]));
+			verhogen((int*)&(keys[40+i]));
 		}
 	}
-=======
-		verhogen((int *)&(keys[8+i]));
-    }
-  else if (line == IL_ETHERNET+8){
-    i = getDevice(INST_INT_LINE5,INT_DEV_LINE5);
-    dev_register = (dtpreg_t *) DEV_REG_ADDR(IL_ETHERNET, i);
-    dev_register->command = CMD_ACK;
-	  verhogen((int *)&(keys[16+i]));
-    }
-  else if (line == IL_PRINTER+8){
-    i = getDevice(INST_INT_LINE6,INT_DEV_LINE6);
-	  dev_register = (dtpreg_t *) DEV_REG_ADDR(IL_PRINTER, i);
-    dev_register->command = CMD_ACK;
-	  verhogen((int *)&(keys[24+i]));
-    }
-  else if (line == IL_TERMINAL+8){
-    i = getDevice(INST_INT_LINE7,INT_DEV_LINE7);
-    term_register = (termreg_t *) DEV_REG_ADDR(IL_TERMINAL, i);/*da mettere +i*/
-    if ((term_register->transm_status & (unsigned int)255) == CHAR_TRANSMD){
-	    wait_transm(&(term_register->transm_status));
-	    headBlocked((int*)&(keys[32]))->p_s.reg_v0=term_register->transm_status;
-	    term_register->transm_command = CMD_ACK;
-	    verhogen((int *)&(keys[32+i]));/*da mettere +i*/
-	    }
-	  if ((term_register->recv_status & (unsigned int)255) == CHAR_RECVD){
-      headBlocked((int*)&(keys[40]))->p_s.reg_v0=term_register->recv_status;
-      term_register->recv_command = CMD_ACK;
-		  verhogen((int *)&(keys[40+i]));/*da mettere +i*/
-      }
-    }
-	//if (current == NULL && !list_empty(&(ready_queue.p_next))) scheduler_init(&(ready_queue.p_next));
->>>>>>> 99c38a11c412c66690a3de44085cb724c517c3eb
   LDST((state_t*)INT_OLDAREA);
 }

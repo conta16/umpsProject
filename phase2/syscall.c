@@ -32,13 +32,8 @@ void syscall_handler(){
 		create_process((state_t * )old->reg_a1, old->reg_a2, (void **)old->reg_a3);
 		sys_return(old);
 		break;
-<<<<<<< HEAD
 	case TERMINATEPROCESS:
 		oldarea_pc_increment();
-=======
-	case TERMINATEPROCESS: // se il tipo di chiamata e' 3, chiamiamo il gestore deputato, poi lo scheduler
-	oldarea_pc_increment();
->>>>>>> 99c38a11c412c66690a3de44085cb724c517c3eb
 		terminate_process((void **)(old->reg_a1));
 		break;
 	case WAITIO:
@@ -58,13 +53,8 @@ void syscall_handler(){
 		verhogen((int *)old->reg_a1);
 		break;
 	case PASSEREN:
-<<<<<<< HEAD
 	  	oldarea_pc_increment();
-		passeren(old->reg_a1, old);
-=======
-	  oldarea_pc_increment();
 		passeren((int *)old->reg_a1, old);
->>>>>>> 99c38a11c412c66690a3de44085cb724c517c3eb
 		break;
 	case WAITCLOCK:
 		oldarea_pc_increment();
@@ -157,17 +147,10 @@ void io_command(unsigned int command, unsigned int *ourReg, int type){
 
 void create_process(state_t *statep, int priority, void ** cpid){
 	int i;
-<<<<<<< HEAD
 	pcb_t* p = allocPcb();
 	if (p == NULL){ //nessun processo disponibile nella lista dei processi liberi
 		old->reg_v0 = -1; //ritorna -1
 		return;
-=======
-	pcb_t* p = allocPcb();//allochiamo un nuovo pcb
-	if (p == NULL){				//se allocPcb ritorna NULL, allora non e' possibile allocare altri pcb
-		old->reg_v0 = -1;
-		return;							//ritorna -1
->>>>>>> 99c38a11c412c66690a3de44085cb724c517c3eb
 	}
 	insertChild(current,p);//il pcb viene aggiunto nella coda dei figli del processo current
 	insertProcQ(&(ready_queue.p_next), p);//il pcb viene aggiunto alla ready queue
@@ -176,13 +159,8 @@ void create_process(state_t *statep, int priority, void ** cpid){
   	for (i=0; i<sizeof(state_t); i++,c++,d++)	/* Ciclo di scorrimento per copiare il campo statep in p_s*/
     		*c=*d;
 	p->priority = priority;
-<<<<<<< HEAD
 	p->original_priority = priority;
 	if (cpid!=NULL) *cpid = (void *)p; //cpid punta al processo puntato da p, che quindi potrà essere usato anche al di fuori della syscall
-=======
-	p->original_priority = priority; //viene settata la priorita' del processo figlio
-	if (cpid!=NULL) *cpid = (void **)p;
->>>>>>> 99c38a11c412c66690a3de44085cb724c517c3eb
 	old->reg_v0 = 0;
 }
 void set_tutor(){
@@ -261,11 +239,7 @@ void passeren(int* semaddr, state_t* block_state){
 			current->total_time_kernel += (getClock() - current->last_syscall_time); //contabilita' dei tempi
 			current->middle_time = getClock();
 			current = NULL;
-<<<<<<< HEAD
-			scheduler(&(ready_queue.p_next));
-=======
 			scheduler(&(ready_queue.p_next));  			//viene chiamato lo scheduler per avviare un nuovo processo
->>>>>>> 99c38a11c412c66690a3de44085cb724c517c3eb
 		}
 }
 
