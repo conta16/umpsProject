@@ -33,15 +33,13 @@ void scheduler(struct list_head* head){
 		LDST(&(current->p_s));/*carichiamo il processo nel processore*/
 	}
 	else{
-		/*se il processore non ha un processo significa che il processo prima ha terminato la sua esecuzione
-		esattamente alla fine dell' ultimo time-slice quindi lo trattiamo come una nuova inizializzazione*/
+		/*Se la lista non è vuota, il controllo passa a scheduler_init, altrimenti viene caricato il processo idle*/
 		if (!list_empty(&(ready_queue.p_next))){
 			scheduler_init(head);
 		}
 		else{
 			current = idle;
 			setTIMER(3000*TIME_SCALE);
-			setSTATUS(getSTATUS() & (unsigned int)(~(1)));
 			LDST(&(current->p_s));
 		}
 	}

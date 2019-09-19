@@ -32,8 +32,8 @@ void syscall_handler(){
 		create_process(old->reg_a1, old->reg_a2, old->reg_a3);
 		sys_return(old);
 		break;
-	case TERMINATEPROCESS: // se il tipo di chiamata è 3, chiamiamo il gestore deputato, poi lo scheduler
-	oldarea_pc_increment();
+	case TERMINATEPROCESS:
+		oldarea_pc_increment();
 		terminate_process((void **)(old->reg_a1));
 		break;
 	case WAITIO:
@@ -53,7 +53,7 @@ void syscall_handler(){
 		verhogen(old->reg_a1);
 		break;
 	case PASSEREN:
-	  oldarea_pc_increment();
+	  	oldarea_pc_increment();
 		passeren(old->reg_a1, old);
 		break;
 	case WAITCLOCK:
@@ -83,8 +83,8 @@ void sys_return(state_t* old){ //aggiorna il valore di pc e fa ldst dell'area ol
 
 int check_device(unsigned int *reg){
 	int i,dev;
-	for (dev=3; dev<8; dev++)
-		for (i=0; i<8; i++)
+	for (dev=3; dev<8; dev++) //itera su diverse categorie di device (terminal, printers ecc.)
+		for (i=0; i<8; i++) //itera su device della stessa categoria
 			if (DEV_REG_ADDR(dev,i) == (unsigned int)reg)
 				return i+((dev-3)*8);
 	return -1;
@@ -127,15 +127,15 @@ void io_command(unsigned int command, unsigned int *ourReg, int type){
 	termreg_t* termreg = (termreg_t*) ourReg;
 	unsigned int semd_id;
 	int dev = check_device(ourReg);
-	if (dev < 32)
+	if (dev < 32) //non è un terminale
 		devreg->command = command;
 	else
-		if (type == 0)
+		if (type == 0) //device di trasmissione caratteri del terminale
 			termreg->transm_command = command;
 		else
 			termreg->recv_command = command;
 	if (dev < 32 || (dev < 40 && type == 0))
-		semd_id = (unsigned int)&(keys[dev]);
+		semd_id = (unsigned int)&(keys[dev]); //prendo id del semaforo su cui verrà bloccato il processo
 	else
 		semd_id = (unsigned int)&(keys[dev+8]);
 	if (dev < 32) old->reg_v0 = devreg->status;
@@ -148,34 +148,26 @@ void io_command(unsigned int command, unsigned int *ourReg, int type){
 void create_process(state_t *statep, int priority, void ** cpid){
 	int i;
 	pcb_t* p = allocPcb();
-	if (p == NULL){
-		old->reg_v0 = -1;
+	if (p == NULL){ //nessun processo disponibile nella lista dei processi liberi
+		old->reg_v0 = -1; //ritorna -1
 		return;
 	}
 	insertChild(current,p);
 	insertProcQ(&(ready_queue.p_next), p);
 	char *c = (char *)&(p->p_s);
 	char *d = (char *)statep;
-  for (i=0; i<sizeof(state_t); i++,c++,d++)	/* Ciclo di scorrimento per copiare il campo statep in p_s*/
-    *c=*d;
+  	for (i=0; i<sizeof(state_t); i++,c++,d++)	/* Ciclo di scorrimento per copiare il campo statep in p_s*/
+    		*c=*d;
 	p->priority = priority;
 	p->original_priority = priority;
-	if (cpid!=NULL) *cpid = (void **)p; 				/*---------- dubbio --------------*/
+	if (cpid!=NULL) *cpid = (void *)p; //cpid punta al processo puntato da p, che quindi potrà essere usato anche al di fuori della syscall
 	old->reg_v0 = 0;
 }
 void set_tutor(){
 		current->tutor = 1;
 }
 
-/*int get_process(void **pid, struct list_head children){
-        struct list_head *tmp;
-        list_for_each(tmp,&children){
-                if (container_of(tmp,pcb_t,p_sib) == (pcb_t *) *pid) return 0;
-                //if (!emptyChild(container_of(tmp,pcb_t,p_sib))) get_process(pid,container_of(tmp,pcb_t,p_sib)->p_child);
-		if ((container_of(tmp,pcb_t,p_sib)->p_child).next != &(container_of(tmp,pcb_t,p_sib)->p_child)) get_process(pid,container_of(tmp,pcb_t,p_sib)->p_child);
-        }
-        return -1;
-}*/
+/*get_process: visito gli antenati del processo che va terminato. Se si visita current allora ritorna 0, altrimenti -1*/
 
 int get_process(pcb_t *pid){
 	if (pid->p_parent == NULL) return -1;
@@ -186,21 +178,19 @@ int get_process(pcb_t *pid){
 void kill_proc(pcb_t* pid){
 	pcb_t* proc = pid;
 	pcb_t* tmp;
-	pcb_t* tutor = find_tutor(proc);
+	pcb_t* tutor = find_tutor(proc); //ritorna il tutor, cioè il processo a cui vanno affidati i processi figli del processo terminato. Se non c'è un tutor, il tutor diventa il processo radice
 	while(!list_empty(&(proc->p_child))){
 		tmp = removeChild(proc);
 		tmp->p_parent = NULL;
-    		if(tutor != proc) insertChild(tutor,tmp);
+    		if(tutor != proc) insertChild(tutor,tmp); //i processi figli del processo terminato diventano figli del tutor
 	}
-	if (proc->p_semkey != NULL){
+	if (proc->p_semkey != NULL){ //se viene terminato un processo che è bloccato ad un semaforo, aumento il semaforo e lo tolgo dalla lista dei bloccati
 		*(proc->p_semkey)+=1;
 		outBlocked(proc);
 	}
 	else outProcQ(&(ready_queue.p_next),proc);
-	list_del(&(proc->p_sib));
-	outChild(proc);
-	proc->p_sib.next = &(proc->p_sib);
-	proc->p_sib.prev = &(proc->p_sib);
+	list_del(&(proc->p_sib)); //tolgo il processo da una eventuale lista di processi fratelli
+	outChild(proc); //tolgo il processo dai figli del padre
 	if (proc == current){
 		current = NULL;
 	}
@@ -213,9 +203,12 @@ pcb_t* find_tutor(pcb_t* pid){
         else return find_tutor(pid->p_parent);
 }
 int terminate_process(void **pid){
-        if (pid != 0 && pid != NULL){
-                if (get_process((pcb_t*) *pid) == -1) old->reg_v0= (unsigned int)-1;
-                else kill_proc((pcb_t *) *pid);
+        if (pid != 0 && pid != NULL){ //se il processo da terminare non è il corrente
+                if (get_process((pcb_t*) *pid) == -1) old->reg_v0= (unsigned int)-1; //se il processo da terminare non è discendente di current, ritorna -1
+                else{
+			kill_proc((pcb_t *) *pid);
+			old->reg_v0 = 0;
+		}
        	}
         else {
 				kill_proc(current);
@@ -225,6 +218,8 @@ int terminate_process(void **pid){
 	return 0;
 }
 
+//verhogen: libero un processo dalla coda dei processi bloccati con id del semaforo semaddr
+
 void verhogen(int* semaddr) {
 	pcb_t* tmp;
 	*semaddr+=1;
@@ -232,6 +227,8 @@ void verhogen(int* semaddr) {
 	if (tmp!=NULL)
 		insertProcQ(&(ready_queue.p_next), tmp);
 }
+
+//passeren: blocca un processo nel semaforo con id semaddr e chiama scheduler
 
 void passeren(int* semaddr, state_t* block_state){
 		*semaddr-=1;
@@ -242,10 +239,11 @@ void passeren(int* semaddr, state_t* block_state){
 			current->total_time_kernel += (getClock() - current->last_syscall_time);
 			current->middle_time = getClock();
 			current = NULL;
-			/*insertProcQ(&(blocked_queue.p_next), current);*/
 			scheduler(&(ready_queue.p_next));
 		}
 }
+
+//spec_passup: old e new diventano gli stati che vengono caricati quando c'è un'eccezione di tipo type
 
 int spec_passup(int type, state_t* old, state_t* new){
 	if(current->spec_assigned[type]){
