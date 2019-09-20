@@ -1,6 +1,6 @@
 ------------ README ------------
 
-- Contenuto di phase1.5.tar.gz:
+- Contenuto di phase2.tar.gz:
 
 	- header file inclusi:
 
@@ -33,8 +33,8 @@
 
 	PREREQUISITI: bisogna avere umps2 installato sul proprio device. Per maggiori informazioni: https://github.com/tjonjic/umps
 
-	- sposta il file "phase1.5.tar.gz" nella directory desiderata
-	- decomprimi il file "phase1.5.tar.gz"
+	- sposta il file "phase2.tar.gz" nella directory desiderata
+	- decomprimi il file "phase2.tar.gz"
 	- lancia il comando "make" per la generazione dei file opportuni al kernel su umps2
 	- lancia il comando "make clean" se si vuole cancellare i file creati da "make"
 

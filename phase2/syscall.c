@@ -160,22 +160,15 @@ void create_process(state_t *statep, int priority, void ** cpid){
     		*c=*d;
 	p->priority = priority;
 	p->original_priority = priority;
-<<<<<<< HEAD
-	if (cpid!=NULL) *cpid = (void **)p;
-=======
 	if (cpid!=NULL) *cpid = (void *)p; //cpid punta al processo puntato da p, che quindi potrà essere usato anche al di fuori della syscall
->>>>>>> fd6cbc7b0976e56ad24cc996eec5434357b8da7c
 	old->reg_v0 = 0;
 }
 void set_tutor(){
 		current->tutor = 1;
 }
 
-<<<<<<< HEAD
-=======
 /*get_process: visito gli antenati del processo che va terminato. Se si visita current allora ritorna 0, altrimenti -1*/
 
->>>>>>> fd6cbc7b0976e56ad24cc996eec5434357b8da7c
 int get_process(pcb_t *pid){
 	if (pid->p_parent == NULL) return -1;
 	if (pid->p_parent == current) return 0;
@@ -246,11 +239,7 @@ void passeren(int* semaddr, state_t* block_state){
 			current->total_time_kernel += (getClock() - current->last_syscall_time); //contabilita' dei tempi
 			current->middle_time = getClock();
 			current = NULL;
-<<<<<<< HEAD
-			scheduler(&(ready_queue.p_next));
-=======
 			scheduler(&(ready_queue.p_next));  			//viene chiamato lo scheduler per avviare un nuovo processo
->>>>>>> fd6cbc7b0976e56ad24cc996eec5434357b8da7c
 		}
 }
 

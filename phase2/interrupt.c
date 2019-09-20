@@ -70,7 +70,7 @@ extern void int_handler(){
 		*tmp = (unsigned int)-1;
 	}
 	else if (line == IL_CPUTIMER+8){
-		if (current != NULL) copyState((state_t *)INT_OLDAREA, &(current->p_s)); /*funzione definita in utils.c, copia lo stato dell'old area e lo mette in current, che è il puntatore all'ultimo pcb scelto dallo scheduler*/
+		copyState((state_t *)INT_OLDAREA, &(current->p_s)); /*funzione definita in utils.c, copia lo stato dell'old area e lo mette in current, che è il puntatore all'ultimo pcb scelto dallo scheduler*/
 		setTIMER((unsigned int)-1); /*ack del Processor Local Timer*/
 		scheduler(&(ready_queue.p_next));
 	}
@@ -108,12 +108,12 @@ extern void int_handler(){
 		i = getDevice(INST_INT_LINE7,INT_DEV_LINE7);
 		term_register = (termreg_t *) DEV_REG_ADDR(IL_TERMINAL, i);
 		if ((term_register->transm_status & 255) == CHAR_TRANSMD){ //transm_status occupa 4 byte, dove il primo è lo stato e il secondo è il carattere. Con &255 consideriamo solo lo stato
-			headBlocked((int*)&(keys[32+i]))->p_s.reg_v0=term_register->transm_status;
+			//headBlocked((int*)&(keys[32+i]))->p_s.reg_v0=term_register->transm_status;
 			term_register->transm_command = CMD_ACK;
 			verhogen((int*)&(keys[32+i]));
 		}
 		if ((term_register->recv_status & 255) == CHAR_RECVD){ //recv_status occupa 4 byte, dove il primo è lo stato e il secondo è il carattere. Con &255 consideriamo solo lo stato
-			headBlocked((int*)&(keys[40+i]))->p_s.reg_v0=term_register->recv_status;
+			//headBlocked((int*)&(keys[40+i]))->p_s.reg_v0=term_register->recv_status;
 			term_register->recv_command = CMD_ACK;
 			verhogen((int*)&(keys[40+i]));
 		}
