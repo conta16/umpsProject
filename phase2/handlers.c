@@ -28,14 +28,7 @@ void pgmtrap_handler(){
 }
 
 void sysbk_handler(){
-  int KUmode;
-  KUmode = (((state_t*)SYSBK_OLDAREA)->status & 0x00000008) >> 3;
-  if (KUmode){
-	copyState((state_t*)SYSBK_OLDAREA,(state_t*)PGMTRAP_OLDAREA);
-	setCAUSE(getCAUSE() | 0x00000028);
-	pgmtrap_handler();
-  }
-  else if (!(((state_t*)SYSBK_OLDAREA)->reg_a0<11 && ((state_t*)SYSBK_OLDAREA)->reg_a0>0)){
+  if (!(((state_t*)SYSBK_OLDAREA)->reg_a0<11 && ((state_t*)SYSBK_OLDAREA)->reg_a0>0)){
     if (!(current->spec_assigned[0]))
       SYSCALL(TERMINATEPROCESS, 0, 0, 0);
     else{

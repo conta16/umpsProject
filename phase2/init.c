@@ -74,7 +74,7 @@ void init_pcbs(){
 	test_pcb->p_s.pc_epc = (unsigned int) test;
 	test_pcb->p_s.reg_t9 = test_pcb->p_s.pc_epc;
 
-	idle = allocPcb();
+	idle = allocPcb(); //allocazione processo idle che viene caricato quando non c'è nessun processo nella ready queue
 
         setBit(IEc,&(idle->p_s.status),1);
         setBit(VMc,&(idle->p_s.status),0);
@@ -90,7 +90,7 @@ void init_pcbs(){
 
         /*Per ogni pcb, faccio puntare il campo pc a una delle tre funzioni test1, test2 e test3*/
 
-        idle->p_s.pc_epc = (unsigned int) wait;
+        idle->p_s.pc_epc = (unsigned int) wait; //funzione definita in utils.h
         idle->p_s.reg_t9 = idle->p_s.pc_epc;
 
 
