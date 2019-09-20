@@ -160,22 +160,12 @@ void create_process(state_t *statep, int priority, void ** cpid){
     *c=*d;
 	p->priority = priority;
 	p->original_priority = priority;
-	if (cpid!=NULL) *cpid = (void **)p; 				/*---------- dubbio --------------*/
+	if (cpid!=NULL) *cpid = (void **)p;
 	old->reg_v0 = 0;
 }
 void set_tutor(){
 		current->tutor = 1;
 }
-
-/*int get_process(void **pid, struct list_head children){
-        struct list_head *tmp;
-        list_for_each(tmp,&children){
-                if (container_of(tmp,pcb_t,p_sib) == (pcb_t *) *pid) return 0;
-                //if (!emptyChild(container_of(tmp,pcb_t,p_sib))) get_process(pid,container_of(tmp,pcb_t,p_sib)->p_child);
-		if ((container_of(tmp,pcb_t,p_sib)->p_child).next != &(container_of(tmp,pcb_t,p_sib)->p_child)) get_process(pid,container_of(tmp,pcb_t,p_sib)->p_child);
-        }
-        return -1;
-}*/
 
 int get_process(pcb_t *pid){
 	if (pid->p_parent == NULL) return -1;
@@ -242,7 +232,6 @@ void passeren(int* semaddr, state_t* block_state){
 			current->total_time_kernel += (getClock() - current->last_syscall_time);
 			current->middle_time = getClock();
 			current = NULL;
-			/*insertProcQ(&(blocked_queue.p_next), current);*/
 			scheduler(&(ready_queue.p_next));
 		}
 }

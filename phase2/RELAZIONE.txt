@@ -47,10 +47,33 @@
 
 - syscall.c:
 
-	Primitivo gestore delle systemcall. Dopo eserre chiamato controlla che Cause.ExcCode sia corretto, se lo è, dopo ciò verifica che nel registro a0 il codice della chiamata corrispona a quello della systemcall da gestire, in caso positivo viene chiamato il gestore opprtuno, altrimenti un gestore di default che segnala l'errore.
-	Il gestore della chiamata SYS3, come da specifica, prima di eseguirsi sul nodo del proceso da cui è stato chamato, effettua una visita posticipata del'albero dei processi radicato nel processo corrente in modo da eseguirsi in ogni caso con la condizione che il processo da tetrminare non ha figli.
-	L'eliminazione di ciascun processo consiste in: chiamata ricorsiva, eliminazione dalla sta dei figli del processo padre, eliminazione dalla ready queue, e liberazione del pcb sul quale risiedeva il processo.
+	Gestore delle system call accettate dal sistema operativo. Dopo i controlli di handler.c sulla validità della chiamata ci si comporta in base al codice della syscall ricevuto.
+
+		- SYS1: GETCPUTIME -
+			il tempo passato in modalità kernel e user è memorizzato in campi appositi di pcb_t e questa syscall semplicemente assegna ai registri interessati i valori corrispondenti.
+		- SYS2: CREATEPROCESS -
+			crea un nuovo processo figlio del processo chiamante con la sua priorità e in reg_a3 viene salvato l' indirizzo del descrittore di tale processo.
+		- SYS3: TERMINATEPROCESS -
+			termina il processo dichiarato nel campo reg_a1. se è NULL o 0 viene terminato il programma corrente. Ogni figlio del processo terminato viene "adottato" dal tutor più vicino o dalla radice dell' albero.
+		- SYS4: VERHOGEN -
+			classica Verhogen su un semaforo. L' indirizzo del semaforo è usato come chiave per determinare l' unicità dei diversi semafori.
+		- SYS5: PASSEREN -
+			classica Passeren su un semaforo. Il processo chiamante viene inserito in una coda apposita per processi bloccati in attesa di una Verhogen sullo stesso semaforo.
+		- SYS6: WAITCLOCK -
+			il processo chiamante si ferma per un ciclo di usando la syscall PASSEREN su un semaforo standard che ogni ciclo di clock fa una VERHOGEN.
+	  - SYS7: WAITIO -
+			il processo chiamante aspetta l' esecuzione del comando che ha passato come parametro sul dispositivo di I/O scelto.
+		- SYS8: SETTUTOR -
+			viene settato il campo tutor di pcb_t a 1. La prossima volta che un processo nella progenie del chiamante viene terminato tutti i figli orfani saranno "adottati" dal tutor più vicino.
+		- SYS9: SPECPASSUP -
+			il processo chiamante specifica le aree di memoria a cui riferirsi per le prossime trap (program trap, sysbk trap, tlb trap).
+		- SYS10: GETPID -
+			il processo chiamante mette nei registri appositi il suo identificatore e quello del suo genitore.
 
 - utils.c:
 
 	File con funzioni di "utilità", cioè che possono risultare comode per più task.
+
+- handlers.c:
+	File che si occupa della gestione delle trap e dei controlli necessari per gestirle. Se il programma corrente mentre avviene una trap ha effettuato una syscall SPECPASSUP passa il controllo all' area di memoria adibita,
+	altrimenti rimanda la gestione della trap ai gestori standard.
